@@ -140,6 +140,39 @@ ls -la ../downloads/Android/backup/
 
 ---
 
+## GitHub Backup
+
+**Repository:** https://github.com/yanyannoodle34-debug/Myapp.git
+
+### Git Commands
+```bash
+# Save changes
+git add .
+git commit -m "description of changes"
+git push
+
+# Pull latest changes
+git pull origin main
+
+# Check status
+git status
+
+# View commit history
+git log --oneline -10
+```
+
+### Auto Backup Script
+```bash
+# Quick save and push
+git add . && git commit -m "update $(date +%Y-%m-%d)" && git push
+```
+
+### Credentials
+- Token stored in: `git_acc.json` (keep secure, don't share)
+- Remote: `origin` → `https://github.com/yanyannoodle34-debug/Myapp.git`
+
+---
+
 ## Adding New Components
 
 ### Install Additional SDK Packages
