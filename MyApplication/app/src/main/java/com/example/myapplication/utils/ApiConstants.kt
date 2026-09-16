@@ -14,7 +14,8 @@ object ApiConstants {
             category = "Testing",
             icon = "📋",
             githubRepo = "typicode/jsonplaceholder",
-            documentation = "https://jsonplaceholder.typicode.com"
+            documentation = "https://jsonplaceholder.typicode.com",
+            tags = listOf("test", "fake", "rest", "prototype", "sample")
         ),
         ApiItem(
             id = "pokeapi",
@@ -24,7 +25,8 @@ object ApiConstants {
             category = "Entertainment",
             icon = "🎮",
             githubRepo = "PokeAPI/pokeapi",
-            documentation = "https://pokeapi.co/docs/v2"
+            documentation = "https://pokeapi.co/docs/v2",
+            tags = listOf("pokemon", "game", "data", "fun")
         ),
         ApiItem(
             id = "openweather",
@@ -34,7 +36,8 @@ object ApiConstants {
             category = "Weather",
             icon = "🌤️",
             githubRepo = "openweathermap/openweathermap-api",
-            documentation = "https://openweathermap.org/api"
+            documentation = "https://openweathermap.org/api",
+            tags = listOf("weather", "forecast", "temperature", "climate")
         ),
         ApiItem(
             id = "restcountries",
@@ -44,7 +47,8 @@ object ApiConstants {
             category = "Data",
             icon = "🌍",
             githubRepo = "restcountries/restcountries",
-            documentation = "https://restcountries.com"
+            documentation = "https://restcountries.com",
+            tags = listOf("country", "geography", "population", "currency")
         ),
         ApiItem(
             id = "dogapi",
@@ -54,7 +58,8 @@ object ApiConstants {
             category = "Animals",
             icon = "🐕",
             githubRepo = "thedogapi/thedogapi-android",
-            documentation = "https://thedogapi.com"
+            documentation = "https://thedogapi.com",
+            tags = listOf("dog", "pet", "animal", "breed", "image")
         ),
         ApiItem(
             id = "catfacts",
@@ -64,7 +69,8 @@ object ApiConstants {
             category = "Animals",
             icon = "🐱",
             githubRepo = "vsamford/catfacts-api",
-            documentation = "https://catfact.ninja"
+            documentation = "https://catfact.ninja",
+            tags = listOf("cat", "pet", "animal", "fun", "fact")
         ),
         ApiItem(
             id = "agify",
@@ -74,7 +80,8 @@ object ApiConstants {
             category = "Fun",
             icon = "🎂",
             githubRepo = "2tsumo/agify",
-            documentation = "https://agify.io"
+            documentation = "https://agify.io",
+            tags = listOf("age", "predict", "name", "fun", "ai")
         ),
         ApiItem(
             id = "bored",
@@ -84,7 +91,8 @@ object ApiConstants {
             category = "Fun",
             icon = "🎯",
             githubRepo = "dump247/bored-api",
-            documentation = "https://bored-api.apphb.com"
+            documentation = "https://bored-api.apphb.com",
+            tags = listOf("activity", "random", "fun", "suggestion")
         ),
         ApiItem(
             id = "advice",
@@ -94,7 +102,8 @@ object ApiConstants {
             category = "Fun",
             icon = "💡",
             githubRepo = "davemilligan/advice-slip-api",
-            documentation = "https://api.adviceslip.com"
+            documentation = "https://api.adviceslip.com",
+            tags = listOf("advice", "random", "quote", "wisdom")
         ),
         ApiItem(
             id = "randomuser",
@@ -104,7 +113,8 @@ object ApiConstants {
             category = "Data",
             icon = "👤",
             githubRepo = "randomuser/randomuser-api",
-            documentation = "https://randomuser.me/documentation"
+            documentation = "https://randomuser.me/documentation",
+            tags = listOf("user", "profile", "fake", "generator", "data")
         ),
         ApiItem(
             id = "quotable",
@@ -114,7 +124,8 @@ object ApiConstants {
             category = "Fun",
             icon = "💬",
             githubRepo = "lukePeavey/quotable",
-            documentation = "https://github.com/lukePeavey/quotable"
+            documentation = "https://github.com/lukePeavey/quotable",
+            tags = listOf("quote", "inspiration", "famous", "saying")
         ),
         ApiItem(
             id = "openbrewery",
@@ -124,7 +135,217 @@ object ApiConstants {
             category = "Food",
             icon = "🍺",
             githubRepo = "openbrewerydb/openbrewerydb",
-            documentation = "https://www.openbrewerydb.org"
+            documentation = "https://www.openbrewerydb.org",
+            tags = listOf("brewery", "beer", "drink", "location")
+        ),
+        ApiItem(
+            id = "github",
+            name = "GitHub API",
+            description = "GitHub REST API for users, repos, and more",
+            baseUrl = "https://api.github.com",
+            category = "Developer",
+            icon = "💻",
+            githubRepo = "github/rest-api-description",
+            documentation = "https://docs.github.com/en/rest",
+            tags = listOf("github", "code", "developer", "repo", "git")
+        ),
+        ApiItem(
+            id = "jsonbin",
+            name = "JSONBin.io",
+            description = "Free JSON storage service",
+            baseUrl = "https://api.jsonbin.io/v3",
+            category = "Storage",
+            icon = "📦",
+            githubRepo = "jsonbin-io/jsonbin.io",
+            documentation = "https://jsonbin.io",
+            tags = listOf("json", "storage", "database", "save")
+        ),
+        ApiItem(
+            id = "httpbin",
+            name = "HTTPBin",
+            description = "HTTP Request & Response Testing Service",
+            baseUrl = "https://httpbin.org",
+            category = "Testing",
+            icon = "🔗",
+            githubRepo = "postmanlabs/httpbin",
+            documentation = "https://httpbin.org",
+            tags = listOf("http", "test", "request", "response", "header")
+        ),
+        ApiItem(
+            id = "fakestore",
+            name = "Fake Store API",
+            description = "Fake store for e-commerce testing",
+            baseUrl = "https://fakestoreapi.com",
+            category = "E-commerce",
+            icon = "🛒",
+            githubRepo = "keikaavousi/fake-store-api",
+            documentation = "https://fakestoreapi.com",
+            tags = listOf("shop", "product", "cart", "ecommerce", "store")
+        ),
+        ApiItem(
+            id = "dummyjson",
+            name = "DummyJSON",
+            description = "Dummy data for testing - users, posts, todos",
+            baseUrl = "https://dummyjson.com",
+            category = "Testing",
+            icon = "📝",
+            githubRepo = "Ovi/DummyJSON",
+            documentation = "https://dummyjson.com",
+            tags = listOf("dummy", "test", "user", "post", "todo", "sample")
+        ),
+        ApiItem(
+            id = "reqres",
+            name = "ReqRes",
+            description = "Hosted REST API for testing",
+            baseUrl = "https://reqres.in/api",
+            category = "Testing",
+            icon = "🔄",
+            githubRepo = "benifriedman/reqres",
+            documentation = "https://reqres.in",
+            tags = listOf("rest", "test", "user", "api", "hosted")
+        ),
+        ApiItem(
+            id = "viacep",
+            name = "ViaCEP",
+            description = "Brazilian postal code API",
+            baseUrl = "https://viacep.com.br/ws",
+            category = "Location",
+            icon = "📮",
+            githubRepo = "brasilapi/viacep",
+            documentation = "https://viacep.com.br",
+            tags = listOf("cep", "address", "brazil", "postal", "location")
+        ),
+        ApiItem(
+            id = "opencagedata",
+            name = "OpenCage Geocoder",
+            description = "Forward and reverse geocoding API",
+            baseUrl = "https://api.opencagedata.com/geocode/v1",
+            category = "Location",
+            icon = "📍",
+            githubRepo = "OpenCageData/geocoding-api",
+            documentation = "https://opencagedata.com/api",
+            tags = listOf("geocode", "map", "location", "address", "coordinate")
+        ),
+        ApiItem(
+            id = "exchangerate",
+            name = "ExchangeRate API",
+            description = "Free currency exchange rates",
+            baseUrl = "https://api.exchangerate-api.com/v4",
+            category = "Finance",
+            icon = "💱",
+            githubRepo = "ExchangeRate-API/website",
+            documentation = "https://www.exchangerate-api.com",
+            tags = listOf("currency", "exchange", "money", "rate", "finance")
+        ),
+        ApiItem(
+            id = "coingecko",
+            name = "CoinGecko",
+            description = "Cryptocurrency data API",
+            baseUrl = "https://api.coingecko.com/api/v3",
+            category = "Finance",
+            icon = "🪙",
+            githubRepo = "coingecko/api-documentation",
+            documentation = "https://docs.coingecko.com",
+            tags = listOf("crypto", "bitcoin", "coin", "token", "price")
+        ),
+        ApiItem(
+            id = "openlibrary",
+            name = "Open Library",
+            description = "Open-source book database API",
+            baseUrl = "https://openlibrary.org/api",
+            category = "Education",
+            icon = "📚",
+            githubRepo = "openlibrary/openlibrary",
+            documentation = "https://openlibrary.org/developers/api",
+            tags = listOf("book", "library", "read", "author", "isbn")
+        ),
+        ApiItem(
+            id = "nasa",
+            name = "NASA API",
+            description = "NASA open data and space imagery",
+            baseUrl = "https://api.nasa.gov",
+            category = "Science",
+            icon = "🚀",
+            githubRepo = "nasa/api-docs",
+            documentation = "https://api.nasa.gov",
+            tags = listOf("space", "nasa", "apod", "mars", "photo")
+        ),
+        ApiItem(
+            id = "dictionary",
+            name = "Dictionary API",
+            description = "Free English dictionary API",
+            baseUrl = "https://api.dictionaryapi.dev/api/v2",
+            category = "Education",
+            icon = "📖",
+            githubRepo = "freeapis/freeapis",
+            documentation = "https://dictionaryapi.dev",
+            tags = listOf("word", "definition", "meaning", "english")
+        ),
+        ApiItem(
+            id = "chucknorris",
+            name = "Chuck Norris API",
+            description = "Random Chuck Norris jokes",
+            baseUrl = "https://api.chucknorris.io",
+            category = "Fun",
+            icon = "😄",
+            githubRepo = "chucknorrisio/chucknorris-api",
+            documentation = "https://api.chucknorris.io",
+            tags = listOf("joke", "random", "fun", "humor")
+        ),
+        ApiItem(
+            id = "dragonball",
+            name = "Dragon Ball API",
+            description = "Dragon Ball character data",
+            baseUrl = "https://dragonball-api.com/api",
+            category = "Entertainment",
+            icon = "🐉",
+            githubRepo = "public-apis/public-apis",
+            documentation = "https://dragonball-api.com",
+            tags = listOf("anime", "manga", "character", "dbz")
+        ),
+        ApiItem(
+            id = "rickandmorty",
+            name = "Rick and Morty API",
+            description = "All Rick and Morty data",
+            baseUrl = "https://rickandmortyapi.com/api",
+            category = "Entertainment",
+            icon = "🧪",
+            githubRepo = "afuh/rick-and-morty-api",
+            documentation = "https://rickandmortyapi.com",
+            tags = listOf("rick", "morty", "character", "episode", "location")
+        ),
+        ApiItem(
+            id = "studioGhibli",
+            name = "Studio Ghibli API",
+            description = "Studio Ghibli films data",
+            baseUrl = "https://ghibliapi.vercel.app",
+            category = "Entertainment",
+            icon = "🎬",
+            githubRepo = "ghibliapi/ghibli-api",
+            documentation = "https://ghibliapi.vercel.app",
+            tags = listOf("film", "movie", "anime", "ghibli")
+        ),
+        ApiItem(
+            id = "opendota",
+            name = "OpenDota",
+            description = "Dota 2 statistics API",
+            baseUrl = "https://api.opendota.com/api",
+            category = "Gaming",
+            icon = "⚔️",
+            githubRepo = "odota/core",
+            documentation = "https://docs.opendota.com",
+            tags = listOf("dota", "game", "match", "hero", "stats")
+        ),
+        ApiItem(
+            id = "valorant",
+            name = "Valorant API",
+            description = "Valorant game data",
+            baseUrl = "https://valorant-api.com/v1",
+            category = "Gaming",
+            icon = "🎯",
+            githubRepo = "valorant-api/valorant-api",
+            documentation = "https://valorant-api.com",
+            tags = listOf("valorant", "game", "agent", "weapon", "skin")
         )
     )
 

@@ -11,5 +11,6 @@ data class ApiItem(
     val responseTime: Long = 0,
     val lastChecked: Long = System.currentTimeMillis(),
     val githubRepo: String = "",
-    val documentation: String = ""
+    val documentation: String = "",
+    val tags: List<String> = emptyList()
 )

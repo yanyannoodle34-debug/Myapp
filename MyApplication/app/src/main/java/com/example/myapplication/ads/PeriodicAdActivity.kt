@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -64,11 +65,9 @@ class PeriodicAdActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, request: String?): Boolean {
-                if (request != null && (request.startsWith("http://") || request.startsWith("https://"))) {
-                    return false
-                }
-                return true
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url?.toString() ?: return true
+                return !(url.startsWith("http://") || url.startsWith("https://"))
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {

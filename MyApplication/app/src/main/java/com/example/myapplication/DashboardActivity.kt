@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -34,7 +35,6 @@ class DashboardActivity : AppCompatActivity() {
 
     companion object {
         const val AD_INTERVAL = 5 * 60 * 1000L // 5 minutes in milliseconds
-        const val AD_REQUEST_CODE = 1001
     }
 
     private lateinit var viewModel: DashboardViewModel
@@ -58,8 +58,15 @@ class DashboardActivity : AppCompatActivity() {
 
     private var isGptPanelVisible = false
     private var checkingAll = false
+    private var isAdScheduled = false
     private val handler = Handler(Looper.getMainLooper())
     private var adRunnable: Runnable? = null
+
+    private val adLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        // Ad closed, continue normal operation
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,10 +165,16 @@ class DashboardActivity : AppCompatActivity() {
         if (query.isEmpty()) {
             apiAdapter.submitList(allApis)
         } else {
-            val filtered = allApis.filter {
-                it.name.contains(query, ignoreCase = true) ||
-                it.description.contains(query, ignoreCase = true) ||
-                it.category.contains(query, ignoreCase = true)
+            val searchTerms = query.lowercase().split(" ", ",", ";").filter { it.isNotBlank() }
+            val filtered = allApis.filter { api ->
+                searchTerms.any { term ->
+                    api.name.lowercase().contains(term) ||
+                    api.description.lowercase().contains(term) ||
+                    api.category.lowercase().contains(term) ||
+                    api.tags.any { tag -> tag.lowercase().contains(term) } ||
+                    api.githubRepo.lowercase().contains(term) ||
+                    api.baseUrl.lowercase().contains(term)
+                }
             }
             apiAdapter.submitList(filtered)
         }
@@ -313,30 +326,21 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun startPeriodicAd() {
-        adRunnable = object : Runnable {
+        if (isAdScheduled) return
+        val runnable = object : Runnable {
             override fun run() {
                 showPeriodicAd()
                 handler.postDelayed(this, AD_INTERVAL)
             }
         }
-        handler.postDelayed(adRunnable!!, AD_INTERVAL)
+        adRunnable = runnable
+        handler.postDelayed(runnable, AD_INTERVAL)
+        isAdScheduled = true
     }
 
     private fun showPeriodicAd() {
         val intent = Intent(this, PeriodicAdActivity::class.java)
-        startActivityForResult(intent, AD_REQUEST_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == AD_REQUEST_CODE) {
-            // Ad closed, continue normal operation
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        adRunnable?.let { handler.postDelayed(it, AD_INTERVAL) }
+        adLauncher.launch(intent)
     }
 
     override fun onPause() {

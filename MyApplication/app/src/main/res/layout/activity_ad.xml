@@ -7,42 +7,64 @@
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_gravity="top"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="#80000000">
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:background="#CC2196F3"
+        android:gravity="center_vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:text="Loading ad..."
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:singleLine="true"
+            android:ellipsize="end" />
 
-            <TextView
-                android:id="@+id/tvCountdown"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Skip in 5s"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
+        <Button
+            android:id="@+id/btnRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Reload"
+            android:textSize="11sp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:backgroundTint="#FF9800"
+            android:textColor="@color/white"
+            android:layout_marginEnd="8dp"
+            android:paddingHorizontal="12dp" />
 
-            <Button
-                android:id="@+id/btnSkip"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="SKIP"
-                android:textSize="12sp"
-                android:textAllCaps="false"
-                android:backgroundTint="#FF5722"
-                android:textColor="@color/white"
-                android:paddingHorizontal="16dp" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tvCountdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Skip in 5s"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnSkip"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="SKIP"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:backgroundTint="#F44336"
+            android:textColor="@color/white"
+            android:paddingHorizontal="20dp" />
     </LinearLayout>
 
     <ProgressBar
@@ -50,8 +72,35 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:layout_gravity="top"
+        android:layout_gravity="bottom"
         android:indeterminate="false"
         android:max="100"
         android:progressTint="#4CAF50" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:background="#CCE3F2FD"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="API Dashboard"
+            android:textColor="@color/primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Free APIs + GPT Testing"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
+    </LinearLayout>
 </FrameLayout>

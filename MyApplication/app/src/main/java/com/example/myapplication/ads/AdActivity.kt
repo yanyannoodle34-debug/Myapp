@@ -1,14 +1,13 @@
 package com.example.myapplication.ads
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -23,38 +22,55 @@ class AdActivity : AppCompatActivity() {
 
     companion object {
         const val AD_URL = "https://www.profitableratecpmnetwork.com/eyjjtp4aj?key=68ea55cc29c5c85c681c4ac949fb45e0"
-        const val SPLASH_DURATION = 5000L // 5 seconds
-        const val EXTRA_IS_SPLASH = "is_splash"
+        const val SPLASH_DURATION = 5000L
     }
 
     private lateinit var webView: WebView
     private lateinit var progressBar: ProgressBar
     private lateinit var tvCountdown: TextView
+    private lateinit var tvStatus: TextView
     private lateinit var btnSkip: Button
+    private lateinit var btnRefresh: Button
     private var countDownTimer: CountDownTimer? = null
-    private var isSplash = true
+    private var adLoaded = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ad)
 
-        isSplash = intent.getBooleanExtra(EXTRA_IS_SPLASH, true)
-
         initViews()
         setupWebView()
         loadAd()
         startCountdown()
+
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (webView.canGoBack()) {
+                    webView.goBack()
+                } else {
+                    goToDashboard()
+                }
+            }
+        })
     }
 
     private fun initViews() {
         webView = findViewById(R.id.webView)
         progressBar = findViewById(R.id.progressBar)
         tvCountdown = findViewById(R.id.tvCountdown)
+        tvStatus = findViewById(R.id.tvStatus)
         btnSkip = findViewById(R.id.btnSkip)
+        btnRefresh = findViewById(R.id.btnRefresh)
 
         btnSkip.setOnClickListener {
-            finishAd()
+            goToDashboard()
+        }
+
+        btnRefresh.setOnClickListener {
+            loadAd()
+            tvStatus.text = "Loading ad..."
+            btnRefresh.visibility = View.GONE
         }
     }
 
@@ -69,57 +85,55 @@ class AdActivity : AppCompatActivity() {
             displayZoomControls = false
             allowContentAccess = true
             allowFileAccess = true
+            cacheMode = WebSettings.LOAD_DEFAULT
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            userAgentString = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
         }
 
         webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, request: String?): Boolean {
-                if (request != null) {
-                    if (request.startsWith("http://") || request.startsWith("https://")) {
-                        return false // Let WebView handle it
-                    }
-                    // Open other URLs in browser
-                    try {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(request)))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url?.toString() ?: return true
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    return false
                 }
                 return true
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                adLoaded = true
                 progressBar.visibility = View.GONE
+                tvStatus.text = "Ad loaded"
+            }
+
+            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                super.onReceivedError(view, request, error)
+                progressBar.visibility = View.GONE
+                tvStatus.text = "Failed to load ad"
+                btnRefresh.visibility = View.VISIBLE
             }
         }
 
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                if (newProgress < 100) {
-                    progressBar.visibility = View.VISIBLE
-                } else {
+                progressBar.progress = newProgress
+                if (newProgress >= 100) {
                     progressBar.visibility = View.GONE
+                } else {
+                    progressBar.visibility = View.VISIBLE
                 }
             }
-        }
-
-        webView.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP -> {
-                    if (!webView.canScrollVertically(-1) && !webView.canScrollVertically(1)) {
-                        webView.parent.requestDisallowInterceptTouchEvent(false)
-                    } else {
-                        webView.parent.requestDisallowInterceptTouchEvent(true)
-                    }
-                }
-            }
-            false
         }
     }
 
     private fun loadAd() {
-        webView.loadUrl(AD_URL)
+        try {
+            webView.loadUrl(AD_URL)
+            tvStatus.text = "Loading ad..."
+        } catch (e: Exception) {
+            tvStatus.text = "Error loading ad"
+            btnRefresh.visibility = View.VISIBLE
+        }
     }
 
     private fun startCountdown() {
@@ -127,33 +141,30 @@ class AdActivity : AppCompatActivity() {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = millisUntilFinished / 1000
                 tvCountdown.text = "Skip in ${secondsLeft}s"
+                btnSkip.isEnabled = false
+                btnSkip.alpha = 0.5f
             }
 
             override fun onFinish() {
-                finishAd()
+                tvCountdown.text = "Ready!"
+                btnSkip.isEnabled = true
+                btnSkip.alpha = 1.0f
+                goToDashboard()
             }
         }.start()
     }
 
-    private fun finishAd() {
+    private fun goToDashboard() {
         countDownTimer?.cancel()
-        
         val intent = Intent(this, DashboardActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
     }
 
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-        } else {
-            finishAd()
-        }
-    }
-
     override fun onDestroy() {
         countDownTimer?.cancel()
+        webView.stopLoading()
         webView.destroy()
         super.onDestroy()
     }
