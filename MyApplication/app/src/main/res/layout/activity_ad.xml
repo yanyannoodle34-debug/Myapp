@@ -45,6 +45,19 @@
             android:layout_marginEnd="8dp"
             android:paddingHorizontal="12dp" />
 
+        <Button
+            android:id="@+id/btnBrowser"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Browser"
+            android:textSize="11sp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:backgroundTint="#00ACC1"
+            android:textColor="@color/white"
+            android:layout_marginEnd="8dp"
+            android:paddingHorizontal="12dp" />
+
         <TextView
             android:id="@+id/tvCountdown"
             android:layout_width="wrap_content"
@@ -91,7 +104,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="API Dashboard"
+            android:text="AI for APIs (AFA)"
             android:textColor="@color/primary"
             android:textSize="14sp"
             android:textStyle="bold" />

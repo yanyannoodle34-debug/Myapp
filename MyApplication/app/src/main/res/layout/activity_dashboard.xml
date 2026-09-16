@@ -11,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
-        app:title="API Dashboard"
+        app:title="AI for APIs"
         app:titleTextColor="@color/white"
-        app:subtitle="Test APIs + GPT Integration"
+        app:subtitle="AI in APIs • Test APIs + GPT"
         app:subtitleTextColor="@color/toolbar_subtitle"
         app:menu="@menu/menu_dashboard" />
 
@@ -65,6 +65,76 @@
                 android:contentDescription="Clear search" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <!-- Source Mode Toggle + Rate Limit -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleSource"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:checkedButton="@id/btnModeApis">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnModeApis"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="🌐 APIs"
+                    android:textAllCaps="false" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnModeGithub"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="💻 GitHub"
+                    android:textAllCaps="false" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSettings"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="48dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:contentDescription="Settings"
+                app:icon="@drawable/ic_settings"
+                app:iconPadding="0dp"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvRateLimit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_response"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:text="GitHub quota: tap 💻 GitHub then search (token in Settings = 5000/hr)"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <!-- Quick Stats -->
     <LinearLayout

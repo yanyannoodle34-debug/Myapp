@@ -1,9 +1,14 @@
 package com.example.myapplication
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.models.ApiItem
@@ -55,6 +60,40 @@ class ApiDetailActivity : AppCompatActivity() {
                 tvStatus.text = "Testing..."
             }
         }
+
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCopy).setOnClickListener {
+            copyResponse()
+        }
+
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.btnShare).setOnClickListener {
+            shareResponse()
+        }
+    }
+
+    private fun copyResponse() {
+        val text = tvResponse.text.toString()
+        if (text.isBlank()) {
+            Toast.makeText(this, "Nothing to copy", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("api_response", text))
+        Toast.makeText(this, "Response copied", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun shareResponse() {
+        val text = tvResponse.text.toString()
+        if (text.isBlank()) {
+            Toast.makeText(this, "Nothing to share", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val title = apiItem?.let { "${it.name} response" } ?: "API response"
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, title)
+            putExtra(Intent.EXTRA_TEXT, "$title\n\n$text")
+        }
+        startActivity(Intent.createChooser(send, "Share response"))
     }
 
     private fun loadApiData() {

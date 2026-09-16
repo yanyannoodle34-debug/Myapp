@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -29,8 +30,12 @@ class PeriodicAdActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var progressBar: ProgressBar
     private lateinit var tvCountdown: TextView
+    private lateinit var tvStatus: TextView
     private lateinit var btnSkip: Button
+    private lateinit var btnRefresh: Button
+    private lateinit var btnBrowser: Button
     private var countDownTimer: CountDownTimer? = null
+    private var retryCount = 0
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,10 +52,29 @@ class PeriodicAdActivity : AppCompatActivity() {
         webView = findViewById(R.id.webView)
         progressBar = findViewById(R.id.progressBar)
         tvCountdown = findViewById(R.id.tvCountdown)
+        tvStatus = findViewById(R.id.tvStatus)
         btnSkip = findViewById(R.id.btnSkip)
+        btnRefresh = findViewById(R.id.btnRefresh)
+        btnBrowser = findViewById(R.id.btnBrowser)
 
         btnSkip.setOnClickListener {
             finishAd()
+        }
+
+        btnRefresh.setOnClickListener {
+            retryCount = 0
+            btnRefresh.visibility = View.GONE
+            btnBrowser.visibility = View.GONE
+            tvStatus.text = "Loading ad..."
+            loadAd()
+        }
+
+        btnBrowser.setOnClickListener {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AD_URL)))
+            } catch (e: Exception) {
+                tvStatus.text = "No browser found"
+            }
         }
     }
 
@@ -73,6 +97,24 @@ class PeriodicAdActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 progressBar.visibility = View.GONE
+                tvStatus.text = "Ad loaded"
+            }
+
+            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                super.onReceivedError(view, request, error)
+                if (request?.isForMainFrame != true) return
+                // VPN/DNS may block the ad host: retry once, then browser fallback
+                if (retryCount < 1) {
+                    retryCount++
+                    tvStatus.text = "Retrying ad... ($retryCount)"
+                    view?.clearCache(true)
+                    view?.loadUrl(AD_URL)
+                } else {
+                    progressBar.visibility = View.GONE
+                    tvStatus.text = "Ad blocked (VPN?) — try browser"
+                    btnRefresh.visibility = View.VISIBLE
+                    btnBrowser.visibility = View.VISIBLE
+                }
             }
         }
 

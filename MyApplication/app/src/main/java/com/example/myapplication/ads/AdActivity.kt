@@ -2,6 +2,7 @@ package com.example.myapplication.ads
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
@@ -31,8 +32,10 @@ class AdActivity : AppCompatActivity() {
     private lateinit var tvStatus: TextView
     private lateinit var btnSkip: Button
     private lateinit var btnRefresh: Button
+    private lateinit var btnBrowser: Button
     private var countDownTimer: CountDownTimer? = null
     private var adLoaded = false
+    private var retryCount = 0
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,15 +65,29 @@ class AdActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.tvStatus)
         btnSkip = findViewById(R.id.btnSkip)
         btnRefresh = findViewById(R.id.btnRefresh)
+        btnBrowser = findViewById(R.id.btnBrowser)
 
         btnSkip.setOnClickListener {
             goToDashboard()
         }
 
         btnRefresh.setOnClickListener {
-            loadAd()
-            tvStatus.text = "Loading ad..."
+            retryCount = 0
             btnRefresh.visibility = View.GONE
+            btnBrowser.visibility = View.GONE
+            loadAd()
+        }
+
+        btnBrowser.setOnClickListener {
+            openInBrowser()
+        }
+    }
+
+    private fun openInBrowser() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AD_URL)))
+        } catch (e: Exception) {
+            tvStatus.text = "No browser found"
         }
     }
 
@@ -108,9 +125,20 @@ class AdActivity : AppCompatActivity() {
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
                 super.onReceivedError(view, request, error)
-                progressBar.visibility = View.GONE
-                tvStatus.text = "Failed to load ad"
-                btnRefresh.visibility = View.VISIBLE
+                if (request?.isForMainFrame != true) return
+                // VPN/DNS may block the ad host: retry once with fresh cache,
+                // then offer external browser fallback. Countdown still finishes.
+                if (retryCount < 1) {
+                    retryCount++
+                    tvStatus.text = "Retrying ad... ($retryCount)"
+                    view?.clearCache(true)
+                    view?.loadUrl(AD_URL)
+                } else {
+                    progressBar.visibility = View.GONE
+                    tvStatus.text = "Ad blocked (VPN?) — try browser"
+                    btnRefresh.visibility = View.VISIBLE
+                    btnBrowser.visibility = View.VISIBLE
+                }
             }
         }
 

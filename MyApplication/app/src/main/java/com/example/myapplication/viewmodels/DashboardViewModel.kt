@@ -6,9 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.models.ApiItem
 import com.example.myapplication.models.ApiResponse
+import com.example.myapplication.models.GithubRate
+import com.example.myapplication.models.GithubRepo
 import com.example.myapplication.models.GptProvider
+import com.example.myapplication.services.GithubClient
 import com.example.myapplication.services.RetrofitClient
 import com.example.myapplication.utils.ApiConstants
+import com.example.myapplication.utils.PrefsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,6 +39,15 @@ class DashboardViewModel : ViewModel() {
 
     private val _gptResponse = MutableLiveData<String>()
     val gptResponse: LiveData<String> = _gptResponse
+
+    private val _githubRepos = MutableLiveData<List<GithubRepo>>()
+    val githubRepos: LiveData<List<GithubRepo>> = _githubRepos
+
+    private val _rateLimit = MutableLiveData<GithubRate?>()
+    val rateLimit: LiveData<GithubRate?> = _rateLimit
+
+    private val _isSearchingGithub = MutableLiveData<Boolean>()
+    val isSearchingGithub: LiveData<Boolean> = _isSearchingGithub
 
     init {
         loadApis()
@@ -164,5 +177,52 @@ class DashboardViewModel : ViewModel() {
             }
             _isLoading.value = false
         }
+    }
+
+    fun searchGithub(query: String, token: String) {
+        if (query.isBlank()) return
+        _isSearchingGithub.value = true
+        viewModelScope.launch {
+            try {
+                val auth = PrefsManager.authHeader(token)
+                val response = withContext(Dispatchers.IO) {
+                    GithubClient.githubService.searchRepos(
+                        query = "$query in:name,description,topics",
+                        auth = auth
+                    )
+                }
+                _githubRepos.value = if (response.isSuccessful) {
+                    response.body()?.items ?: emptyList()
+                } else {
+                    emptyList()
+                }
+            } catch (e: Exception) {
+                _githubRepos.value = emptyList()
+            }
+            _isSearchingGithub.value = false
+        }
+    }
+
+    fun checkRateLimit(token: String) {
+        viewModelScope.launch {
+            try {
+                val auth = PrefsManager.authHeader(token)
+                val response = withContext(Dispatchers.IO) {
+                    GithubClient.githubService.getRateLimit(auth = auth)
+                }
+                _rateLimit.value = if (response.isSuccessful) {
+                    response.body()?.resources?.core
+                        ?: response.body()?.rate
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                _rateLimit.value = null
+            }
+        }
+    }
+
+    fun clearGithubResults() {
+        _githubRepos.value = emptyList()
     }
 }

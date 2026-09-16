@@ -39,7 +39,7 @@
         <activity
             android:name=".DashboardActivity"
             android:exported="false"
-            android:label="API Dashboard"
+            android:label="AI for APIs"
             android:theme="@style/Theme.App" />
 
         <!-- Periodic Ad -->
@@ -52,6 +52,11 @@
         <activity
             android:name=".ApiDetailActivity"
             android:label="API Details"
+            android:theme="@style/Theme.App" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="Settings"
             android:theme="@style/Theme.App" />
 
         <activity

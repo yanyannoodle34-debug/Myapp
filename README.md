@@ -1,4 +1,11 @@
-# Android Development Environment
+# AI for APIs (AFA) — *AI in APIs*
+
+## Version History
+
+| Version | Code | Date | Highlights |
+|---------|------|------|------------|
+| 1.1 | 2 | 2026-09-17 | GitHub repo search + rate limit, Settings screen, dark cool theme, copy/share response, ad on refresh, VPN-proof ads |
+| 1.0 | 1 | 2026-09-16 | 31 APIs dashboard, 11 GPT providers, splash + periodic ads, auto APK backup |
 
 ## Quick Reference
 
@@ -173,12 +180,27 @@ Examples: `cat dog` → Cat Facts + Dog API · `test rest` → JSONPlaceholder, 
 | Ollama (Local) | ✅ | llama3 (no key) |
 
 ### Ads
-| When | Duration | Skippable |
-|------|----------|-----------|
-| App start (splash) | 5s countdown | Auto-continues |
-| Every 5 min of use | 5s | Skip button |
+| When | Duration | Skippable | VPN blocked? |
+|------|----------|-----------|--------------|
+| App start (splash) | 5s countdown | Auto-continues | Auto-retries once, then Browser button |
+| Every 5 min of use | 5s | Skip button | Same fallback |
+| Refresh / Check All | 5s, then checks run | Skip button | Same fallback |
 
-Ad URL loaded in WebView with reload-on-error button.
+Ad URL loaded in WebView with reload-on-error + open-in-browser fallback.
+
+### GitHub Mode (💻 GitHub toggle)
+- Live repo search via `api.github.com/search` (press 🔍, min 2 chars)
+- Rate-limit banner: `remaining/limit` (60/hr anonymous, **5000/hr with token**)
+- Token configured in **Settings** (gear icon) — stored in SharedPreferences
+- Repos map into the same list: tap ▶ to test, tap card for details
+
+### Settings (gear icon / menu)
+- GitHub personal token + **Check Limit** button
+- Per-provider GPT API keys (saved on device only, never in git)
+
+### Response Viewer
+- Scrollable monospace response card (260dp, always-visible scrollbar)
+- **Copy** button → clipboard, **Share** button → share sheet
 
 ---
 

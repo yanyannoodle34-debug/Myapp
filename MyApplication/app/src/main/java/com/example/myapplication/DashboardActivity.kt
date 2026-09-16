@@ -6,7 +6,10 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -23,9 +26,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.myapplication.adapters.ApiAdapter
 import com.example.myapplication.ads.PeriodicAdActivity
 import com.example.myapplication.models.ApiItem
+import com.example.myapplication.models.GithubRepo
 import com.example.myapplication.models.GptProvider
+import com.example.myapplication.utils.PrefsManager
 import com.example.myapplication.viewmodels.DashboardViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
@@ -59,13 +65,23 @@ class DashboardActivity : AppCompatActivity() {
     private var isGptPanelVisible = false
     private var checkingAll = false
     private var isAdScheduled = false
+    private var githubMode = false
+    private var lastGithubQuery = ""
+    private lateinit var tvRateLimit: TextView
     private val handler = Handler(Looper.getMainLooper())
     private var adRunnable: Runnable? = null
 
     private val adLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        // Ad closed, continue normal operation
+        // Periodic ad closed, continue normal operation
+    }
+
+    private val checkAdLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        // Refresh-check ad closed -> run the checks now
+        runChecksNow()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,6 +115,7 @@ class DashboardActivity : AppCompatActivity() {
         tvDownCount = findViewById(R.id.tvDownCount)
         tvTotalCount = findViewById(R.id.tvTotalCount)
         btnStopCheck = findViewById(R.id.btnStopCheck)
+        tvRateLimit = findViewById(R.id.tvRateLimit)
     }
 
     private fun setupRecyclerView() {
@@ -140,6 +157,38 @@ class DashboardActivity : AppCompatActivity() {
         findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCloseGpt).setOnClickListener {
             toggleGptPanel()
         }
+
+        findViewById<MaterialButtonToggleGroup>(R.id.toggleSource).addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            setGithubMode(checkedId == R.id.btnModeGithub)
+        }
+
+        findViewById<MaterialButton>(R.id.btnSettings).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_dashboard, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
+            R.id.action_about -> {
+                AlertDialog.Builder(this)
+                    .setTitle("AI for APIs (AFA) v1.1")
+                    .setMessage("AI in APIs — test public APIs + GitHub repos with GPT help.\n\n31 built-in APIs • 11 AI providers • GitHub search with rate-limit display.")
+                    .setPositiveButton("OK", null)
+                    .show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setupSearch() {
@@ -147,16 +196,26 @@ class DashboardActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filterApis(s.toString())
                 btnClearSearch.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
+                if (!githubMode) filterApis(s.toString())
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
 
+        etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH && githubMode) {
+                runGithubSearch(etSearch.text.toString())
+                true
+            } else {
+                false
+            }
+        }
+
         btnClearSearch.setOnClickListener {
             etSearch.text?.clear()
             btnClearSearch.visibility = View.GONE
+            if (githubMode) viewModel.clearGithubResults()
         }
     }
 
@@ -207,6 +266,62 @@ class DashboardActivity : AppCompatActivity() {
         viewModel.gptResponse.observe(this) { response ->
             tvGptResponse.text = response
         }
+
+        viewModel.githubRepos.observe(this) { repos ->
+            if (githubMode) {
+                apiAdapter.submitList(repos.map { mapRepoToApi(it) })
+                tvTotalCount.text = repos.size.toString()
+            }
+        }
+
+        viewModel.isSearchingGithub.observe(this) { searching ->
+            if (githubMode) swipeRefresh.isRefreshing = searching
+        }
+
+        viewModel.rateLimit.observe(this) { rate ->
+            tvRateLimit.text = rate?.let {
+                "GitHub quota: ${it.remaining}/${it.limit} left (used ${it.used})"
+            } ?: "GitHub quota: unknown — add token in Settings for 5000/hr"
+        }
+    }
+
+    private fun setGithubMode(enabled: Boolean) {
+        githubMode = enabled
+        tvRateLimit.visibility = if (enabled) View.VISIBLE else View.GONE
+        etSearch.hint = if (enabled) "Search GitHub repos... (press 🔍)" else "Search APIs..."
+        if (enabled) {
+            val token = PrefsManager.getGithubToken(this)
+            viewModel.checkRateLimit(token)
+            val q = etSearch.text.toString()
+            if (q.length >= 2) runGithubSearch(q)
+        } else {
+            filterApis(etSearch.text.toString())
+        }
+    }
+
+    private fun runGithubSearch(query: String) {
+        if (query.length < 2) {
+            Toast.makeText(this, "Type at least 2 characters", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lastGithubQuery = query
+        viewModel.checkRateLimit(PrefsManager.getGithubToken(this))
+        viewModel.searchGithub(query, PrefsManager.getGithubToken(this))
+    }
+
+    private fun mapRepoToApi(repo: GithubRepo): ApiItem {
+        val lang = repo.language ?: "Code"
+        return ApiItem(
+            id = "gh_${repo.id}",
+            name = repo.fullName.substringAfter("/"),
+            description = "${repo.description ?: "No description"}\n⭐ ${repo.stars} • $lang • ${repo.owner?.login ?: ""}",
+            baseUrl = repo.htmlUrl,
+            category = lang,
+            icon = "💻",
+            githubRepo = repo.fullName,
+            documentation = repo.htmlUrl,
+            tags = repo.topics + listOf("github", lang.lowercase(), "repo", "code")
+        )
     }
 
     private fun updateStats(apis: List<ApiItem>) {
@@ -220,6 +335,16 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun checkAllApis() {
+        // Show ad first — checks run automatically when the ad closes
+        checkAdLauncher.launch(Intent(this, PeriodicAdActivity::class.java))
+    }
+
+    private fun runChecksNow() {
+        if (githubMode) {
+            if (lastGithubQuery.isNotBlank()) runGithubSearch(lastGithubQuery)
+            else swipeRefresh.isRefreshing = false
+            return
+        }
         checkingAll = true
         btnStopCheck.visibility = View.VISIBLE
         findViewById<MaterialButton>(R.id.btnCheckAll).visibility = View.GONE

@@ -154,19 +154,45 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Response"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Response"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCopy"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Copy"
+                            android:textAllCaps="false" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnShare"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Share"
+                            android:textAllCaps="false" />
+                    </LinearLayout>
 
                     <ScrollView
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
+                        android:layout_height="260dp"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/bg_response"
-                        android:padding="8dp">
+                        android:padding="8dp"
+                        android:scrollbars="vertical"
+                        android:fadeScrollbars="false">
 
                         <TextView
                             android:id="@+id/tvResponse"

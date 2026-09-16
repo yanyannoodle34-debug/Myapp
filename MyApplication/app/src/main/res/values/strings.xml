@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">API Dashboard</string>
-    <string name="welcome_message">Welcome to API Dashboard</string>
+    <string name="app_name">AI for APIs (AFA)</string>
+    <string name="app_tagline">AI in APIs</string>
+    <string name="welcome_message">Welcome to AI for APIs</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
