@@ -4,11 +4,25 @@
 
 | Version | Code | Date | Highlights |
 |---------|------|------|------------|
+| 1.3 | 4 | 2026-09-17 | Lottie loading animations, animated gradient backgrounds, polished dark palette |
 | 1.2 | 3 | 2026-09-17 | USGS/NASA/NOAA disaster APIs, silent auto-scan on start, polished Settings cards |
 | 1.1 | 2 | 2026-09-17 | GitHub repo search + rate limit, Settings screen, dark cool theme, copy/share response, ad on refresh, VPN-proof ads |
 | 1.0 | 1 | 2026-09-16 | 31 APIs dashboard, 11 GPT providers, splash + periodic ads, auto APK backup |
 
 **⬇ Download latest APK:** https://github.com/yanyannoodle34-debug/Myapp/releases/latest
+
+## Features
+- 🌋 35 Public APIs (USGS earthquakes, NASA EONET, NOAA alerts + 31 more)
+- 🎨 Lottie loading animations & animated gradient backgrounds
+- 🌙 Dark theme with polished navy+cyan color palette
+- 🤖 11 AI providers (DeepSeek, Nevida, Groq, etc.)
+- 💻 GitHub repo search with rate-limit display
+- 📱 Auto-scan on start (silent, no ad)
+- 🎭 Ads on refresh with VPN-proof browser fallback
+- 📊 Dashboard stats (LIVE/DOWN/TOTAL counters)
+- 📝 Copy/Share API responses
+- ⚙️ Settings with per-provider API keys
+- 🔄 Auto APK backup + GitHub release publishing
 
 ## Quick Reference
 
