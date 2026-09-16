@@ -36,3 +36,4 @@ Thumbs.db
 
 # Git credentials
 .git-credentials
+git_acc.json
