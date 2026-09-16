@@ -1,0 +1,168 @@
+package com.example.myapplication.viewmodels
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.models.ApiItem
+import com.example.myapplication.models.ApiResponse
+import com.example.myapplication.models.GptProvider
+import com.example.myapplication.services.RetrofitClient
+import com.example.myapplication.utils.ApiConstants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class DashboardViewModel : ViewModel() {
+
+    private val _apis = MutableLiveData<List<ApiItem>>()
+    val apis: LiveData<List<ApiItem>> = _apis
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _testResult = MutableLiveData<ApiResponse>()
+    val testResult: LiveData<ApiResponse> = _testResult
+
+    private val _gptProviders = MutableLiveData<List<GptProvider>>()
+    val gptProviders: LiveData<List<GptProvider>> = _gptProviders
+
+    private val _selectedProvider = MutableLiveData<GptProvider?>()
+    val selectedProvider: LiveData<GptProvider?> = _selectedProvider
+
+    private val _gptPrompt = MutableLiveData<String>()
+    val gptPrompt: LiveData<String> = _gptPrompt
+
+    private val _gptResponse = MutableLiveData<String>()
+    val gptResponse: LiveData<String> = _gptResponse
+
+    init {
+        loadApis()
+        loadGptProviders()
+    }
+
+    private fun loadApis() {
+        _apis.value = ApiConstants.PUBLIC_APIS
+    }
+
+    private fun loadGptProviders() {
+        _gptProviders.value = ApiConstants.GPT_PROVIDERS
+    }
+
+    fun testApi(api: ApiItem) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val startTime = System.currentTimeMillis()
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.testApi(api.baseUrl)
+                }
+                val responseTime = System.currentTimeMillis() - startTime
+
+                val apiResponse = if (response.isSuccessful) {
+                    ApiResponse(
+                        success = true,
+                        statusCode = response.code(),
+                        responseTime = responseTime,
+                        body = response.body()?.toString()?.take(500) ?: "Empty response"
+                    )
+                } else {
+                    ApiResponse(
+                        success = false,
+                        statusCode = response.code(),
+                        responseTime = responseTime,
+                        body = null,
+                        error = "HTTP ${response.code()}"
+                    )
+                }
+
+                _testResult.value = apiResponse
+                updateApiStatus(api, apiResponse.success, responseTime)
+            } catch (e: Exception) {
+                _testResult.value = ApiResponse(
+                    success = false,
+                    statusCode = 0,
+                    responseTime = 0,
+                    body = null,
+                    error = e.message ?: "Unknown error"
+                )
+                updateApiStatus(api, false, 0)
+            }
+            _isLoading.value = false
+        }
+    }
+
+    private fun updateApiStatus(api: ApiItem, isLive: Boolean, responseTime: Long) {
+        val currentList = _apis.value?.toMutableList() ?: return
+        val index = currentList.indexOfFirst { it.id == api.id }
+        if (index != -1) {
+            currentList[index] = currentList[index].copy(
+                isLive = isLive,
+                responseTime = responseTime,
+                lastChecked = System.currentTimeMillis()
+            )
+            _apis.value = currentList
+        }
+    }
+
+    fun selectGptProvider(provider: GptProvider) {
+        _selectedProvider.value = provider
+    }
+
+    fun generateTestPrompt(api: ApiItem) {
+        val prompt = """
+            Generate a curl command or HTTP request to test the following API:
+            
+            API Name: ${api.name}
+            Base URL: ${api.baseUrl}
+            Description: ${api.description}
+            
+            Please provide:
+            1. A simple GET request example
+            2. Expected response format
+            3. Any required parameters
+        """.trimIndent()
+        _gptPrompt.value = prompt
+    }
+
+    fun sendGptRequest(prompt: String, apiKey: String) {
+        val provider = _selectedProvider.value ?: return
+        _isLoading.value = true
+        
+        viewModelScope.launch {
+            try {
+                val request = com.example.myapplication.models.GptRequest(
+                    model = provider.model,
+                    messages = listOf(
+                        com.example.myapplication.models.GptMessage(role = "user", content = prompt)
+                    )
+                )
+                
+                val authHeader = if (provider.id == "google") {
+                    "Bearer $apiKey"
+                } else {
+                    "Bearer $apiKey"
+                }
+
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.sendGptRequest(
+                        url = "${provider.baseUrl}/chat/completions",
+                        auth = authHeader,
+                        request = request
+                    )
+                }
+
+                if (response.isSuccessful) {
+                    val gptResponse = response.body()
+                    val content = gptResponse?.choices?.firstOrNull()?.message?.content
+                    _gptResponse.value = content ?: "No response"
+                } else {
+                    _gptResponse.value = "Error: ${response.code()} - ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _gptResponse.value = "Error: ${e.message}"
+            }
+            _isLoading.value = false
+        }
+    }
+}
