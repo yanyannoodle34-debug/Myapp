@@ -145,6 +145,43 @@ MApp/
 
 ---
 
+## App Features (API Dashboard)
+
+**31 Public APIs** from GitHub with live status checking.
+
+### Keyword Search
+Search bar filters by multiple keywords (space/comma separated) across:
+- API name, description, category
+- Search **tags** (e.g. `crypto`, `weather`, `anime`, `game`)
+- GitHub repo name and base URL
+
+Examples: `cat dog` → Cat Facts + Dog API · `test rest` → JSONPlaceholder, HTTPBin, ReqRes
+
+### GPT Providers (11)
+| Provider | Free | Model |
+|----------|------|-------|
+| OpenAI | ❌ | gpt-3.5-turbo |
+| Anthropic | ❌ | claude-3-haiku |
+| Google AI | ✅ | gemini-pro |
+| Mistral | ❌ | mistral-7b |
+| Groq | ✅ | llama3-8b |
+| DeepSeek | ❌ | deepseek-chat |
+| Nevida AI | ✅ | nevida-1 |
+| Together AI | ✅ | llama-3-8b |
+| HuggingFace | ✅ | llama-3-8b |
+| OpenRouter | ❌ | llama-3-8b |
+| Ollama (Local) | ✅ | llama3 (no key) |
+
+### Ads
+| When | Duration | Skippable |
+|------|----------|-----------|
+| App start (splash) | 5s countdown | Auto-continues |
+| Every 5 min of use | 5s | Skip button |
+
+Ad URL loaded in WebView with reload-on-error button.
+
+---
+
 ## APK & Code Backup
 
 **APK Backup Path:** `/sdcard/shared/downloads/Android/`
