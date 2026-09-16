@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions for Google Maps -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -16,23 +16,38 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <!-- Splash Ad (5s on app start) -->
         <activity
-            android:name=".DashboardActivity"
+            android:name=".ads.AdActivity"
             android:exported="true"
-            android:label="API Dashboard"
+            android:label="Loading"
             android:theme="@style/Theme.App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Main Dashboard -->
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:label="API Dashboard"
+            android:theme="@style/Theme.App" />
+
+        <!-- Periodic Ad -->
+        <activity
+            android:name=".ads.PeriodicAdActivity"
+            android:exported="false"
+            android:label="Ad"
+            android:theme="@style/Theme.App" />
 
         <activity
             android:name=".ApiDetailActivity"

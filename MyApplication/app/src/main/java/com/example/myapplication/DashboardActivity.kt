@@ -2,7 +2,13 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -14,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.myapplication.adapters.ApiAdapter
+import com.example.myapplication.ads.PeriodicAdActivity
 import com.example.myapplication.models.ApiItem
 import com.example.myapplication.models.GptProvider
 import com.example.myapplication.viewmodels.DashboardViewModel
@@ -25,6 +32,11 @@ import com.google.android.material.textfield.TextInputLayout
 
 class DashboardActivity : AppCompatActivity() {
 
+    companion object {
+        const val AD_INTERVAL = 5 * 60 * 1000L // 5 minutes in milliseconds
+        const val AD_REQUEST_CODE = 1001
+    }
+
     private lateinit var viewModel: DashboardViewModel
     private lateinit var apiAdapter: ApiAdapter
     private lateinit var rvApis: RecyclerView
@@ -34,8 +46,20 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var chipGroupProviders: ChipGroup
     private lateinit var tilApiKey: TextInputLayout
     private lateinit var etApiKey: TextInputEditText
+    private lateinit var etCustomPrompt: TextInputEditText
     private lateinit var btnRunGpt: MaterialButton
     private lateinit var tvGptResponse: TextView
+    private lateinit var etSearch: EditText
+    private lateinit var btnClearSearch: ImageButton
+    private lateinit var tvLiveCount: TextView
+    private lateinit var tvDownCount: TextView
+    private lateinit var tvTotalCount: TextView
+    private lateinit var btnStopCheck: MaterialButton
+
+    private var isGptPanelVisible = false
+    private var checkingAll = false
+    private val handler = Handler(Looper.getMainLooper())
+    private var adRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +70,9 @@ class DashboardActivity : AppCompatActivity() {
         initViews()
         setupRecyclerView()
         setupClickListeners()
+        setupSearch()
         observeViewModel()
+        startPeriodicAd()
     }
 
     private fun initViews() {
@@ -57,8 +83,15 @@ class DashboardActivity : AppCompatActivity() {
         chipGroupProviders = findViewById(R.id.chipGroupProviders)
         tilApiKey = findViewById(R.id.tilApiKey)
         etApiKey = findViewById(R.id.etApiKey)
+        etCustomPrompt = findViewById(R.id.etCustomPrompt)
         btnRunGpt = findViewById(R.id.btnRunGpt)
         tvGptResponse = findViewById(R.id.tvGptResponse)
+        etSearch = findViewById(R.id.etSearch)
+        btnClearSearch = findViewById(R.id.btnClearSearch)
+        tvLiveCount = findViewById(R.id.tvLiveCount)
+        tvDownCount = findViewById(R.id.tvDownCount)
+        tvTotalCount = findViewById(R.id.tvTotalCount)
+        btnStopCheck = findViewById(R.id.btnStopCheck)
     }
 
     private fun setupRecyclerView() {
@@ -66,7 +99,7 @@ class DashboardActivity : AppCompatActivity() {
             onTestClick = { api -> viewModel.testApi(api) },
             onItemClick = { api -> showApiDetails(api) }
         )
-        
+
         rvApis.apply {
             layoutManager = LinearLayoutManager(this@DashboardActivity)
             adapter = apiAdapter
@@ -82,18 +115,62 @@ class DashboardActivity : AppCompatActivity() {
             checkAllApis()
         }
 
-        findViewById<MaterialButton>(R.id.btnGptTest).setOnClickListener {
+        btnStopCheck.setOnClickListener {
+            checkingAll = false
+            btnStopCheck.visibility = View.GONE
+            findViewById<MaterialButton>(R.id.btnCheckAll).visibility = View.VISIBLE
+            Toast.makeText(this, "Check stopped", Toast.LENGTH_SHORT).show()
+        }
+
+        findViewById<MaterialButton>(R.id.btnGptPanel).setOnClickListener {
             toggleGptPanel()
         }
 
         btnRunGpt.setOnClickListener {
             runGptTest()
         }
+
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCloseGpt).setOnClickListener {
+            toggleGptPanel()
+        }
+    }
+
+    private fun setupSearch() {
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterApis(s.toString())
+                btnClearSearch.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        btnClearSearch.setOnClickListener {
+            etSearch.text?.clear()
+            btnClearSearch.visibility = View.GONE
+        }
+    }
+
+    private fun filterApis(query: String) {
+        val allApis = viewModel.apis.value ?: return
+        if (query.isEmpty()) {
+            apiAdapter.submitList(allApis)
+        } else {
+            val filtered = allApis.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                it.description.contains(query, ignoreCase = true) ||
+                it.category.contains(query, ignoreCase = true)
+            }
+            apiAdapter.submitList(filtered)
+        }
     }
 
     private fun observeViewModel() {
         viewModel.apis.observe(this) { apis ->
             apiAdapter.submitList(apis)
+            updateStats(apis)
         }
 
         viewModel.isLoading.observe(this) { isLoading ->
@@ -114,42 +191,48 @@ class DashboardActivity : AppCompatActivity() {
             setupGptChips(providers)
         }
 
-        viewModel.gptPrompt.observe(this) { prompt ->
-            Toast.makeText(this, "Prompt generated! Tap 'Run GPT Test'", Toast.LENGTH_SHORT).show()
-        }
-
         viewModel.gptResponse.observe(this) { response ->
             tvGptResponse.text = response
         }
     }
 
+    private fun updateStats(apis: List<ApiItem>) {
+        val liveCount = apis.count { it.isLive }
+        val downCount = apis.count { !it.isLive && it.lastChecked > 0 }
+        val totalCount = apis.size
+
+        tvLiveCount.text = liveCount.toString()
+        tvDownCount.text = downCount.toString()
+        tvTotalCount.text = totalCount.toString()
+    }
+
     private fun checkAllApis() {
+        checkingAll = true
+        btnStopCheck.visibility = View.VISIBLE
+        findViewById<MaterialButton>(R.id.btnCheckAll).visibility = View.GONE
+
         viewModel.apis.value?.forEach { api ->
+            if (!checkingAll) return@forEach
             viewModel.testApi(api)
         }
+
+        Toast.makeText(this, "Checking all APIs...", Toast.LENGTH_SHORT).show()
     }
 
     private fun toggleGptPanel() {
-        if (layoutGptPanel.visibility == View.VISIBLE) {
-            layoutGptPanel.visibility = View.GONE
-        } else {
-            layoutGptPanel.visibility = View.VISIBLE
-        }
+        isGptPanelVisible = !isGptPanelVisible
+        layoutGptPanel.visibility = if (isGptPanelVisible) View.VISIBLE else View.GONE
     }
 
     private fun setupGptChips(providers: List<GptProvider>) {
         chipGroupProviders.removeAllViews()
-        
+
         providers.forEach { provider ->
             val chip = Chip(this).apply {
-                text = provider.name
+                text = if (provider.isFree) "${provider.name} (Free)" else provider.name
                 isCheckable = true
                 isCheckedIconVisible = true
-                
-                if (provider.isFree) {
-                    text = "${provider.name} (Free)"
-                }
-                
+
                 setOnClickListener {
                     viewModel.selectGptProvider(provider)
                     tilApiKey.visibility = if (provider.apiKeyRequired) View.VISIBLE else View.GONE
@@ -161,14 +244,9 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun runGptTest() {
         val apiKey = etApiKey.text.toString()
-        val prompt = viewModel.gptPrompt.value
-
-        if (prompt.isNullOrBlank()) {
-            Toast.makeText(this, "Select an API first to generate a prompt", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+        val customPrompt = etCustomPrompt.text.toString()
         val selectedProvider = viewModel.selectedProvider.value
+
         if (selectedProvider == null) {
             Toast.makeText(this, "Select a GPT provider first", Toast.LENGTH_SHORT).show()
             return
@@ -179,33 +257,95 @@ class DashboardActivity : AppCompatActivity() {
             return
         }
 
+        val prompt = if (customPrompt.isNotBlank()) {
+            customPrompt
+        } else {
+            val currentApi = apiAdapter.currentList.firstOrNull { it.isLive }
+            if (currentApi != null) {
+                """
+                    Analyze this API and suggest tests:
+                    
+                    API: ${currentApi.name}
+                    URL: ${currentApi.baseUrl}
+                    Description: ${currentApi.description}
+                    
+                    Please provide:
+                    1. Sample GET request
+                    2. Expected response format
+                    3. Common test cases
+                """.trimIndent()
+            } else {
+                "Suggest 5 public APIs for testing with their endpoints"
+            }
+        }
+
         viewModel.sendGptRequest(prompt, apiKey)
     }
 
     private fun showApiDetails(api: ApiItem) {
         val message = """
-            API: ${api.name}
-            URL: ${api.baseUrl}
-            Category: ${api.category}
-            GitHub: ${api.githubRepo}
+            ${api.icon} ${api.name}
             
-            Description: ${api.description}
+            Category: ${api.category}
+            URL: ${api.baseUrl}
+            
+            ${api.description}
+            
+            Status: ${if (api.isLive) "LIVE" else if (api.lastChecked > 0) "DOWN" else "UNCHECKED"}
+            ${if (api.responseTime > 0) "Response: ${api.responseTime}ms" else ""}
         """.trimIndent()
 
         AlertDialog.Builder(this)
-            .setTitle("${api.icon} ${api.name}")
+            .setTitle("API Details")
             .setMessage(message)
-            .setPositiveButton("Test Now") { _, _ ->
+            .setPositiveButton("Test API") { _, _ ->
                 viewModel.testApi(api)
                 viewModel.generateTestPrompt(api)
-                layoutGptPanel.visibility = View.VISIBLE
+                if (!isGptPanelVisible) toggleGptPanel()
             }
-            .setPositiveButton("Open Docs") { _, _ ->
+            .setNeutralButton("Open Docs") { _, _ ->
                 val intent = Intent(this, ApiDetailActivity::class.java)
                 intent.putExtra("api_id", api.id)
                 startActivity(intent)
             }
             .setNegativeButton("Close", null)
             .show()
+    }
+
+    private fun startPeriodicAd() {
+        adRunnable = object : Runnable {
+            override fun run() {
+                showPeriodicAd()
+                handler.postDelayed(this, AD_INTERVAL)
+            }
+        }
+        handler.postDelayed(adRunnable!!, AD_INTERVAL)
+    }
+
+    private fun showPeriodicAd() {
+        val intent = Intent(this, PeriodicAdActivity::class.java)
+        startActivityForResult(intent, AD_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == AD_REQUEST_CODE) {
+            // Ad closed, continue normal operation
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adRunnable?.let { handler.postDelayed(it, AD_INTERVAL) }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacksAndMessages(null)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
     }
 }

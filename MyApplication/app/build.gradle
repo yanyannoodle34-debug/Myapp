@@ -65,7 +65,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 }
 
-def backupDir = file("${rootProject.projectDir}/../downloads/Android/backup")
+def backupDir = file("/sdcard/shared/downloads/Android")
+def codeBackupDir = file("/sdcard/shared/downloads/Android/code_backup")
 
 afterEvaluate {
     task copyReleaseApk(type: Copy, dependsOn: 'assembleRelease') {
@@ -80,6 +81,20 @@ afterEvaluate {
         include '*.apk'
     }
 
+    task backupCode(type: Copy) {
+        from "${rootProject.projectDir}/../"
+        into codeBackupDir
+        include "**/*.kt"
+        include "**/*.xml"
+        include "**/*.gradle"
+        include "**/*.properties"
+        exclude "**/build/**"
+        exclude "**/.gradle/**"
+        exclude "**/local.properties"
+    }
+
     assembleRelease.finalizedBy(copyReleaseApk)
     assembleDebug.finalizedBy(copyDebugApk)
+    assembleDebug.finalizedBy(backupCode)
+    assembleRelease.finalizedBy(backupCode)
 }

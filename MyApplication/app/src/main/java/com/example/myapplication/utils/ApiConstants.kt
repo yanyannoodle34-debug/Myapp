@@ -175,13 +175,58 @@ object ApiConstants {
             description = "Fast Llama inference"
         ),
         GptProvider(
+            id = "deepseek",
+            name = "DeepSeek",
+            baseUrl = "https://api.deepseek.com/v1",
+            model = "deepseek-chat",
+            apiKeyRequired = true,
+            isFree = false,
+            description = "DeepSeek V3 - fast & smart"
+        ),
+        GptProvider(
+            id = "nevida",
+            name = "Nevida AI",
+            baseUrl = "https://api.nevida.ai/v1",
+            model = "nevida-1",
+            apiKeyRequired = true,
+            isFree = true,
+            description = "Nevida free AI API"
+        ),
+        GptProvider(
+            id = "together",
+            name = "Together AI",
+            baseUrl = "https://api.together.xyz/v1",
+            model = "meta-llama/Llama-3-8b-chat-hf",
+            apiKeyRequired = true,
+            isFree = true,
+            description = "Open-source models"
+        ),
+        GptProvider(
+            id = "huggingface",
+            name = "HuggingFace",
+            baseUrl = "https://api-inference.huggingface.co/models",
+            model = "meta-llama/Llama-3-8b-instruct",
+            apiKeyRequired = true,
+            isFree = true,
+            description = "Free inference API"
+        ),
+        GptProvider(
+            id = "openrouter",
+            name = "OpenRouter",
+            baseUrl = "https://openrouter.ai/api/v1",
+            model = "meta-llama/llama-3-8b-instruct",
+            apiKeyRequired = true,
+            isFree = false,
+            description = "Multi-model router"
+        ),
+        GptProvider(
             id = "ollama",
             name = "Ollama (Local)",
             baseUrl = "http://localhost:11434/v1",
             model = "llama3",
             apiKeyRequired = false,
             isFree = true,
-            description = "Local LLM (requires Ollama installed)"
+            description = "Local LLM (requires Ollama)"
         )
     )
 
