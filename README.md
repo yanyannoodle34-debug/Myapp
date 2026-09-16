@@ -7,6 +7,8 @@
 | 1.1 | 2 | 2026-09-17 | GitHub repo search + rate limit, Settings screen, dark cool theme, copy/share response, ad on refresh, VPN-proof ads |
 | 1.0 | 1 | 2026-09-16 | 31 APIs dashboard, 11 GPT providers, splash + periodic ads, auto APK backup |
 
+**⬇ Download latest APK:** https://github.com/yanyannoodle34-debug/Myapp/releases/latest
+
 ## Quick Reference
 
 ### What Each Tool Does
