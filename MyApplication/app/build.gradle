@@ -63,6 +63,9 @@ dependencies {
     // Google Maps
     implementation 'com.google.android.gms:play-services-maps:18.2.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    
+    // Lottie Animations
+    implementation 'com.airbnb.android:lottie:6.3.0'
 }
 
 def backupDir = file("/sdcard/shared/downloads/Android")
