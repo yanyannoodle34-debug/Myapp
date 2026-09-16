@@ -30,6 +30,18 @@ class SettingsActivity : AppCompatActivity() {
         buildKeyFields()
         loadSavedKeys()
 
+        findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchAutoScan).apply {
+            isChecked = PrefsManager.isAutoScan(this@SettingsActivity)
+            setOnCheckedChangeListener { _, checked ->
+                PrefsManager.setAutoScan(this@SettingsActivity, checked)
+                Toast.makeText(
+                    this@SettingsActivity,
+                    if (checked) "Auto-scan ON" else "Auto-scan OFF",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
         findViewById<MaterialButton>(R.id.btnSave).setOnClickListener { saveAll() }
         findViewById<MaterialButton>(R.id.btnCheckLimit).setOnClickListener { checkLimit() }
         findViewById<MaterialButton>(R.id.btnBack).setOnClickListener { finish() }

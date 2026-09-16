@@ -346,6 +346,50 @@ object ApiConstants {
             githubRepo = "valorant-api/valorant-api",
             documentation = "https://valorant-api.com",
             tags = listOf("valorant", "game", "agent", "weapon", "skin")
+        ),
+        ApiItem(
+            id = "usgs_quakes",
+            name = "USGS Earthquakes",
+            description = "Live global earthquake data (latest M1+ quake)",
+            baseUrl = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&limit=1&orderby=time",
+            category = "Disasters",
+            icon = "🌋",
+            githubRepo = "usgs/earthquake-eventpages",
+            documentation = "https://earthquake.usgs.gov/fdsnws/event/1/",
+            tags = listOf("earthquake", "usgs", "seismic", "disaster", "quake", "magnitude")
+        ),
+        ApiItem(
+            id = "usgs_quakes_7days",
+            name = "USGS Quakes 4.5+ (7d)",
+            description = "Significant earthquakes worldwide, past 7 days",
+            baseUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson",
+            category = "Disasters",
+            icon = "🌍",
+            githubRepo = "usgs/earthquake-eventpages",
+            documentation = "https://earthquake.usgs.gov/earthquakes/feed/",
+            tags = listOf("earthquake", "usgs", "seismic", "disaster", "geojson", "feed")
+        ),
+        ApiItem(
+            id = "nasa_eonet",
+            name = "NASA EONET",
+            description = "Live natural events: wildfires, storms, volcanoes",
+            baseUrl = "https://eonet.gsfc.nasa.gov/api/v3/events?limit=5",
+            category = "Disasters",
+            icon = "🛰️",
+            githubRepo = "nasa/eonet",
+            documentation = "https://eonet.gsfc.nasa.gov/docs/v3",
+            tags = listOf("nasa", "wildfire", "storm", "volcano", "disaster", "event")
+        ),
+        ApiItem(
+            id = "noaa_alerts",
+            name = "NOAA Weather Alerts",
+            description = "Active US weather alerts and warnings",
+            baseUrl = "https://api.weather.gov/alerts/active?limit=1",
+            category = "Disasters",
+            icon = "⛈️",
+            githubRepo = "weather-gov/api",
+            documentation = "https://www.weather.gov/documentation/services-web-api",
+            tags = listOf("noaa", "weather", "alert", "warning", "storm", "disaster")
         )
     )
 

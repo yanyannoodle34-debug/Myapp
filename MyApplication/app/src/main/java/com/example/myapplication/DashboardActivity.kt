@@ -96,6 +96,11 @@ class DashboardActivity : AppCompatActivity() {
         setupSearch()
         observeViewModel()
         startPeriodicAd()
+
+        // Silent auto-scan on start (no ad) — manual refresh still shows an ad
+        if (PrefsManager.isAutoScan(this) && savedInstanceState == null) {
+            handler.postDelayed({ runChecksNow() }, 800)
+        }
     }
 
     private fun initViews() {
@@ -181,8 +186,8 @@ class DashboardActivity : AppCompatActivity() {
             }
             R.id.action_about -> {
                 AlertDialog.Builder(this)
-                    .setTitle("AI for APIs (AFA) v1.1")
-                    .setMessage("AI in APIs — test public APIs + GitHub repos with GPT help.\n\n31 built-in APIs • 11 AI providers • GitHub search with rate-limit display.")
+                    .setTitle("AI for APIs (AFA) v1.2")
+                    .setMessage("AI in APIs — test public APIs + GitHub repos with GPT help.\n\n35 built-in APIs • 11 AI providers • GitHub search with rate-limit display • Auto-scan on start.")
                     .setPositiveButton("OK", null)
                     .show()
                 true

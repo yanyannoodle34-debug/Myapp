@@ -8,6 +8,7 @@ object PrefsManager {
 
     private const val PREFS_NAME = "api_dashboard_prefs"
     private const val KEY_GITHUB_TOKEN = "github_token"
+    private const val KEY_AUTO_SCAN = "auto_scan"
 
     private fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -30,6 +31,13 @@ object PrefsManager {
 
     fun hasGithubToken(context: Context): Boolean =
         getGithubToken(context).isNotBlank()
+
+    fun isAutoScan(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_AUTO_SCAN, true)
+
+    fun setAutoScan(context: Context, enabled: Boolean) {
+        prefs(context).edit { putBoolean(KEY_AUTO_SCAN, enabled) }
+    }
 
     fun authHeader(token: String): String? =
         token.takeIf { it.isNotBlank() }?.let { "Bearer $it" }

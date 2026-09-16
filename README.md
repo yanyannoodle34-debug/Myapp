@@ -4,6 +4,7 @@
 
 | Version | Code | Date | Highlights |
 |---------|------|------|------------|
+| 1.2 | 3 | 2026-09-17 | USGS/NASA/NOAA disaster APIs, silent auto-scan on start, polished Settings cards |
 | 1.1 | 2 | 2026-09-17 | GitHub repo search + rate limit, Settings screen, dark cool theme, copy/share response, ad on refresh, VPN-proof ads |
 | 1.0 | 1 | 2026-09-16 | 31 APIs dashboard, 11 GPT providers, splash + periodic ads, auto APK backup |
 
@@ -156,7 +157,7 @@ MApp/
 
 ## App Features (API Dashboard)
 
-**31 Public APIs** from GitHub with live status checking.
+**31 Public APIs** from GitHub with live status checking — plus **USGS Earthquakes, NASA EONET & NOAA Alerts** disaster feeds (35 total).
 
 ### Keyword Search
 Search bar filters by multiple keywords (space/comma separated) across:
