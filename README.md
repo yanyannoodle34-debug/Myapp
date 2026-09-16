@@ -100,42 +100,87 @@ sdkmanager --list_installed
 
 ```
 MApp/
-├── downloads/
-│   └── Android/
-│       └── backup/         # APK backup folder (auto-created)
-├── MyApplication/
-│   ├── app/                # Main app module
-│   │   ├── build.gradle    # App-level build config
-│   │   ├── src/
-│   │   │   ├── main/
-│   │   │   │   ├── java/   # Kotlin/Java source files
-│   │   │   │   ├── res/    # Resources (layouts, strings, etc.)
-│   │   │   │   └── AndroidManifest.xml
-│   │   │   └── test/       # Unit tests
-│   │   └── ...
-│   ├── build.gradle        # Project-level build config
-│   ├── settings.gradle     # Project settings
-│   └── gradle.properties   # Gradle properties
-└── README.md               # This file
+├── MyApplication/                # Android project
+│   ├── app/                      # Main app module
+│   │   ├── build.gradle          # App-level build config
+│   │   ├── src/main/
+│   │   │   ├── java/             # Kotlin/Java source files
+│   │   │   │   ├── DashboardActivity.kt
+│   │   │   │   ├── ApiDetailActivity.kt
+│   │   │   │   ├── adapters/
+│   │   │   │   ├── models/
+│   │   │   │   ├── services/
+│   │   │   │   ├── viewmodels/
+│   │   │   │   └── utils/
+│   │   │   ├── res/              # Resources (layouts, strings, etc.)
+│   │   │   └── AndroidManifest.xml
+│   │   └── build/outputs/apk/   # Built APKs
+│   ├── build.gradle              # Project-level build config
+│   ├── settings.gradle
+│   └── gradle.properties
+├── downloads/                    # Local backup
+│   └── Android/backup/
+├── .git/                         # Git repository
+├── .gitignore
+├── README.md                     # This file
+└── git_acc.json                  # GitHub credentials (not in git)
+
+/sdcard/shared/downloads/Android/ # External backup
+├── app-debug.apk
+├── app-release.apk
+└── code_backup/                  # Source code backup
 ```
 
 ---
 
-## APK Backup Location
+## Backup Summary
 
-**Default backup path:** `MApp/downloads/Android/backup/`
+| What | Where | Auto? |
+|------|-------|-------|
+| Debug APK | `/sdcard/shared/downloads/Android/app-debug.apk` | ✅ Yes |
+| Release APK | `/sdcard/shared/downloads/Android/app-release.apk` | ✅ Yes |
+| Source Code | `/sdcard/shared/downloads/Android/code_backup/` | ✅ Yes |
+| GitHub | https://github.com/yanyannoodle34-debug/Myapp.git | Manual |
+| Local Copy | `MApp/downloads/Android/backup/` | ✅ Yes |
 
-After every build, APKs are automatically copied to the backup folder:
-- Release APKs → `downloads/Android/backup/app-release.apk`
-- Debug APKs → `downloads/Android/backup/app-debug.apk`
+---
 
-### Manual Copy Commands
+## APK & Code Backup
+
+**APK Backup Path:** `/sdcard/shared/downloads/Android/`
+**Code Backup Path:** `/sdcard/shared/downloads/Android/code_backup/`
+
+After every build, APKs and source code are automatically backed up:
+
+```
+/sdcard/shared/downloads/Android/
+├── app-debug.apk              # Debug APK
+├── app-release.apk            # Release APK
+└── code_backup/               # Source code backup
+    ├── MyApplication/         # Kotlin/Java files
+    ├── downloads/             # Other files
+    └── ...
+```
+
+### Manual Backup Commands
 ```bash
-# Copy specific APK to backup
-cp app/build/outputs/apk/release/*.apk ../downloads/Android/backup/
+# Copy APK to backup
+cp app/build/outputs/apk/debug/*.apk /sdcard/shared/downloads/Android/
 
-# List backed up APKs
-ls -la ../downloads/Android/backup/
+# List backed up files
+ls -la /sdcard/shared/downloads/Android/
+
+# View code backup
+ls -la /sdcard/shared/downloads/Android/code_backup/
+```
+
+### Build & Auto Backup
+```bash
+# Debug build + backup APK + backup code
+gradle assembleDebug
+
+# Release build + backup
+gradle assembleRelease
 ```
 
 ---
