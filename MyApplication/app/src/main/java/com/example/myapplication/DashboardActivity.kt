@@ -73,16 +73,10 @@ class DashboardActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var adRunnable: Runnable? = null
 
-    private val adLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        // Periodic ad closed, continue normal operation
-    }
-
     private val checkAdLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        // Refresh-check ad closed -> run the checks now
+        // Periodic ad closed, run checks now
         runChecksNow()
     }
 
@@ -481,22 +475,38 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
         adRunnable = runnable
-        handler.postDelayed(runnable, AD_INTERVAL)
+        handler.post(runnable)
         isAdScheduled = true
     }
 
     private fun showPeriodicAd() {
         val intent = Intent(this, PeriodicAdActivity::class.java)
-        adLauncher.launch(intent)
+        checkAdLauncher.launch(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Restart periodic ad timer if cleared by onPause
+        if (isAdScheduled && adRunnable == null) {
+            isAdScheduled = false  // Allow startPeriodicAd to re-schedule
+            startPeriodicAd()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 
     override fun onPause() {
         super.onPause()
         handler.removeCallbacksAndMessages(null)
+        adRunnable = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
+        adRunnable = null
     }
 }
