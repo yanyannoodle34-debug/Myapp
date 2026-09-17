@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.airbnb.lottie.LottieAnimationView
+
 import com.example.myapplication.adapters.ApiAdapter
 import com.example.myapplication.ads.PeriodicAdActivity
 import com.example.myapplication.models.ApiItem
@@ -49,7 +49,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var rvApis: RecyclerView
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBarMain: ProgressBar
-    private lateinit var lottieLoading: LottieAnimationView
+    private lateinit var progressBarLoading: ProgressBar
     private lateinit var layoutGptPanel: LinearLayout
     private lateinit var chipGroupProviders: ChipGroup
     private lateinit var tilApiKey: TextInputLayout
@@ -98,11 +98,10 @@ class DashboardActivity : AppCompatActivity() {
             handler.postDelayed({ runChecksNow() }, 800)
         }
 
-        lottieLoading.postDelayed({
+        progressBarLoading.postDelayed({
             if (PrefsManager.isAutoScan(this)) {
-                lottieLoading.visibility = View.VISIBLE
-                lottieLoading.playAnimation()
-                handler.postDelayed({ lottieLoading.pauseAnimation() }, 3000)
+                progressBarLoading.visibility = View.VISIBLE
+                handler.postDelayed({ progressBarLoading.visibility = View.GONE }, 3000)
             }
         }, 1500)
     }
@@ -125,7 +124,7 @@ class DashboardActivity : AppCompatActivity() {
         tvTotalCount = findViewById(R.id.tvTotalCount)
         btnStopCheck = findViewById(R.id.btnStopCheck)
         tvRateLimit = findViewById(R.id.tvRateLimit)
-        lottieLoading = findViewById(R.id.lottieLoading)
+        progressBarLoading = findViewById(R.id.progressBarLoading)
     }
 
     private fun setupRecyclerView() {
@@ -257,12 +256,7 @@ class DashboardActivity : AppCompatActivity() {
 
         viewModel.isLoading.observe(this) { isLoading ->
             progressBarMain.visibility = if (isLoading) View.GONE else View.GONE
-            lottieLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
-            if (isLoading && !lottieLoading.isAnimating) {
-                lottieLoading.playAnimation()
-            } else if (!isLoading) {
-                lottieLoading.pauseAnimation()
-            }
+            progressBarLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
             swipeRefresh.isRefreshing = false
         }
 
