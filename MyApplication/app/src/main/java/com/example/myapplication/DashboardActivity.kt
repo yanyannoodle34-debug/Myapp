@@ -16,7 +16,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -72,13 +72,6 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var tvRateLimit: TextView
     private val handler = Handler(Looper.getMainLooper())
     private var adRunnable: Runnable? = null
-
-    private val checkAdLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        // Periodic ad closed, run checks now
-        runChecksNow()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -346,7 +339,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun checkAllApis() {
         // Show ad first — checks run automatically when the ad closes
-        checkAdLauncher.launch(Intent(this, PeriodicAdActivity::class.java))
+        showPeriodicAd()
     }
 
     private fun runChecksNow() {
@@ -469,13 +462,14 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
         adRunnable = runnable
-        handler.post(runnable)
+        handler.postDelayed(runnable, AD_INTERVAL)
         isAdScheduled = true
     }
 
     private fun showPeriodicAd() {
         val intent = Intent(this, PeriodicAdActivity::class.java)
-        checkAdLauncher.launch(intent)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     override fun onResume() {
