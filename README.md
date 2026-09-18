@@ -4,7 +4,7 @@
 
 | Version | Code | Date | Highlights |
 |---------|------|------|------------|
-| 1.3.3 | 4 | 2026-09-17 | Fixed ads blocking dashboard, separate task ad flow, responsive dashboard |
+| 1.3.4 | 5 | 2026-09-17 | Modern eyecatching colors, fixed white-on-white, dark theme |
 | 1.3.2 | 4 | 2026-09-17 | Fixed crash on ad close, removed broken Lottie, ProgressBar loading |
 | 1.2 | 3 | 2026-09-17 | USGS/NASA/NOAA disaster APIs, silent auto-scan on start, polished Settings cards |
 | 1.1 | 2 | 2026-09-17 | GitHub repo search + rate limit, Settings screen, dark cool theme, copy/share response, ad on refresh, VPN-proof ads |
