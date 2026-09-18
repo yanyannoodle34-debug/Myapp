@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <WebView
         android:id="@+id/webView"
@@ -18,7 +18,7 @@
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
         android:paddingVertical="8dp"
-        android:background="#CC2196F3"
+        android:background="@color/card_elevated"
         android:gravity="center_vertical">
 
         <TextView
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Loading ad..."
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="12sp"
             android:singleLine="true"
             android:ellipsize="end" />
@@ -40,8 +40,8 @@
             android:textSize="11sp"
             android:textAllCaps="false"
             android:visibility="gone"
-            android:backgroundTint="#FF9800"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/button_primary"
+            android:textColor="@color/button_text"
             android:layout_marginEnd="8dp"
             android:paddingHorizontal="12dp" />
 
@@ -53,8 +53,8 @@
             android:textSize="11sp"
             android:textAllCaps="false"
             android:visibility="gone"
-            android:backgroundTint="#00ACC1"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/accent_neon"
+            android:textColor="@color/button_text"
             android:layout_marginEnd="8dp"
             android:paddingHorizontal="12dp" />
 
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Skip in 5s"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginEnd="8dp" />
@@ -75,7 +75,7 @@
             android:text="SKIP"
             android:textSize="12sp"
             android:textAllCaps="false"
-            android:backgroundTint="#F44336"
+            android:backgroundTint="@color/status_down"
             android:textColor="@color/white"
             android:paddingHorizontal="20dp" />
     </LinearLayout>
@@ -88,7 +88,7 @@
         android:layout_gravity="bottom"
         android:indeterminate="false"
         android:max="100"
-        android:progressTint="#4CAF50" />
+        android:progressTint="@color/status_live" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -97,7 +97,7 @@
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
-        android:background="#CCE3F2FD"
+        android:background="@color/card_elevated"
         android:gravity="center">
 
         <TextView
@@ -105,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="AI for APIs (AFA)"
-            android:textColor="@color/primary"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 

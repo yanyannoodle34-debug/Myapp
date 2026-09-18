@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark cool palette: midnight navy + electric cyan -->
+    <!-- Night Mode: ultra dark with aurora accents -->
     <color name="primary">#4FC3F7</color>
-    <color name="primary_variant">#0B1220</color>
+    <color name="primary_variant">#0288D1</color>
     <color name="secondary">#00E5FF</color>
     <color name="accent_neon">#00E5FF</color>
-    <color name="background">#0B1220</color>
-    <color name="surface">#141D33</color>
+    <color name="background">#050A14</color>
+    <color name="surface">#0A192F</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
 
     <!-- Text Colors -->
-    <color name="text_primary">#E8EEF7</color>
-    <color name="text_secondary">#9FB3C8</color>
-    <color name="text_hint">#5B7290</color>
+    <color name="text_primary">#ECEFF1</color>
+    <color name="text_secondary">#90A4AE</color>
+    <color name="text_hint">#546E7A</color>
 
     <!-- Status Colors -->
-    <color name="status_live">#00E676</color>
+    <color name="status_live">#69F0AE</color>
     <color name="status_down">#FF5252</color>
-    <color name="status_unchecked">#5B7290</color>
-    <color name="status_testing">#FFB300</color>
+    <color name="status_unchecked">#546E7A</color>
+    <color name="status_testing">#FFD740</color>
 
     <!-- UI Colors -->
-    <color name="card_background">#141D33</color>
-    <color name="toolbar_background">#111A2E</color>
-    <color name="toolbar_subtitle">#3E5B7E</color>
-    <color name="gpt_panel_bg">#10202E</color>
-    <color name="chip_selected">#00ACC1</color>
-    <color name="chip_unselected">#22314D</color>
-    <color name="response_bg">#0E1628</color>
+    <color name="card_background">#0D1B2A</color>
+    <color name="toolbar_background">#070D18</color>
+    <color name="toolbar_subtitle">#4FC3F7</color>
+    <color name="gpt_panel_bg">#070D18</color>
+    <color name="chip_selected">#4FC3F7</color>
+    <color name="chip_unselected">#1A3A5C</color>
+    <color name="response_bg">#112240</color>
     <color name="stat_live_bg">#00C853</color>
     <color name="stat_down_bg">#FF3D57</color>
-    <color name="stat_total_bg">#3E5B7E</color>
+    <color name="stat_total_bg">#1565C0</color>
+    <color name="gradient_start">#0D47A1</color>
+    <color name="gradient_center">#00ACC1</color>
+    <color name="gradient_end">#050A14</color>
+    <color name="accent_purple">#B388FF</color>
+    <color name="accent_pink">#FF80AB</color>
+    <color name="accent_orange">#FFAB40</color>
+    <color name="accent_teal">#64FFDA</color>
+    <color name="card_elevated">#1B2D42</color>
+    <color name="divider">#1E3A5F</color>
+    <color name="button_primary">#4FC3F7</color>
+    <color name="button_text">#0A1628</color>
 </resources>

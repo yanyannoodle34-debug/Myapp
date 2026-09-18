@@ -10,9 +10,9 @@
                 android:endX="1"
                 android:endY="1"
                 android:angle="45">
-                <item android:offset="0.0" android:color="#0D47A1" />
-                <item android:offset="0.5" android:color="#00ACC1" />
-                <item android:offset="1.0" android:color="#0D47A1" />
+                <item android:offset="0.0" android:color="@color/gradient_start" />
+                <item android:offset="0.5" android:color="@color/gradient_center" />
+                <item android:offset="1.0" android:color="@color/gradient_start" />
             </gradient>
             <corners android:radius="0dp" />
         </shape>

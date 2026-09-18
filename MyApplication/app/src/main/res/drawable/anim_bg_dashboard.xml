@@ -8,10 +8,9 @@
         android:endX="1080"
         android:endY="1920"
         android:angle="135">
-        <item android:offset="0.0" android:color="#0B1220" />
+        <item android:offset="0.0" android:color="#0A1628" />
         <item android:offset="0.3" android:color="#0D47A1" />
-        <item android:offset="0.6" android:color="#00ACC1" />
-        <item android:offset="1.0" android:color="#0B1220" />
+        <item android:offset="0.6" android:color="#0088AA" />
+        <item android:offset="1.0" android:color="#0A1628" />
     </gradient>
-    <corners android:radius="0dp" />
 </shape>
