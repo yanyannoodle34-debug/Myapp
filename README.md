@@ -4,6 +4,7 @@
 
 | Version | Code | Date | Highlights |
 |---------|------|------|------------|
+| 1.4.0 | 7 | 2026-09-19 | Custom APIs + per-item Hide/Show/Delete + Show Hidden toggle |
 | 1.3.5 | 6 | 2026-09-19 | No startup ad, 30s friendly refresh ads, browser redirect, instant checks |
 | 1.3.4 | 5 | 2026-09-17 | Modern eyecatching colors, fixed white-on-white, dark theme |
 | 1.3.2 | 4 | 2026-09-17 | Fixed crash on ad close, removed broken Lottie, ProgressBar loading |
