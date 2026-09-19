@@ -87,6 +87,50 @@
                     android:textSize="11sp"
                     android:visibility="gone" />
             </LinearLayout>
+
+            <!-- Friendly per-item actions: Hide/Show for each, Delete for customs -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="44dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnToggleVisibility"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="👁 Hide"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    app:iconTint="@color/text_secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="🗑 Delete"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:textColor="@color/status_down"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvCustomBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_category"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="✨ Mine"
+                    android:textColor="@color/accent_neon"
+                    android:textSize="10sp"
+                    android:visibility="gone" />
+            </LinearLayout>
         </LinearLayout>
 
         <FrameLayout

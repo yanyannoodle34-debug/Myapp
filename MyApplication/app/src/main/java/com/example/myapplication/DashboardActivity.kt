@@ -70,6 +70,8 @@ class DashboardActivity : AppCompatActivity() {
     private var githubMode = false
     private var lastGithubQuery = ""
     private lateinit var tvRateLimit: TextView
+    private lateinit var btnAddApi: MaterialButton
+    private lateinit var btnShowHidden: MaterialButton
     private val handler = Handler(Looper.getMainLooper())
     private var adRunnable: Runnable? = null
 
@@ -118,12 +120,35 @@ class DashboardActivity : AppCompatActivity() {
         btnStopCheck = findViewById(R.id.btnStopCheck)
         tvRateLimit = findViewById(R.id.tvRateLimit)
         progressBarLoading = findViewById(R.id.progressBarLoading)
+        btnAddApi = findViewById(R.id.btnAddApi)
+        btnShowHidden = findViewById(R.id.btnShowHidden)
+        viewModel.loadApis(this)
     }
 
     private fun setupRecyclerView() {
         apiAdapter = ApiAdapter(
             onTestClick = { api -> viewModel.testApi(api) },
-            onItemClick = { api -> showApiDetails(api) }
+            onItemClick = { api -> showApiDetails(api) },
+            onToggleVisibility = { api ->
+                viewModel.toggleVisibility(this, api)
+                val verb = if (api.isHidden) "shown" else "hidden"
+                Toast.makeText(this, "${api.name} $verb ❤", Toast.LENGTH_SHORT).show()
+                updateHiddenButton()
+            },
+            onDeleteClick = { api ->
+                if (api.isCustom) {
+                    AlertDialog.Builder(this)
+                        .setTitle("Delete ${api.name}?")
+                        .setMessage("Remove your custom API ❤")
+                        .setPositiveButton("Delete") { _, _ ->
+                            viewModel.deleteApi(this, api)
+                            Toast.makeText(this, "${api.name} deleted ❤", Toast.LENGTH_SHORT).show()
+                            updateHiddenButton()
+                        }
+                        .setNegativeButton("Keep", null)
+                        .show()
+                }
+            }
         )
 
         rvApis.apply {
@@ -167,6 +192,21 @@ class DashboardActivity : AppCompatActivity() {
 
         findViewById<MaterialButton>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        btnAddApi.setOnClickListener {
+            showAddApiDialog()
+        }
+
+        btnShowHidden.setOnClickListener {
+            val show = !viewModel.isShowingHidden()
+            viewModel.setShowHidden(show)
+            updateHiddenButton()
+            Toast.makeText(
+                this,
+                if (show) "Showing hidden ❤" else "Hidden APIs are safe ❤",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -361,6 +401,74 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         Toast.makeText(this, "Checking all APIs...", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun updateHiddenButton() {
+        val count = viewModel.hiddenCount()
+        btnShowHidden.text = if (count > 0) "👁 Hidden ($count)" else "👁 Hidden (0)"
+    }
+
+    private fun showAddApiDialog() {
+        val ctx = this
+        val dialogView = layoutInflater.inflate(android.R.layout.simple_list_item_1, null)
+        // Build a clean custom dialog with proper fields
+        val nameInput = EditText(ctx).apply {
+            hint = "API Name ❤"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+            setHintTextColor(getColor(R.color.text_hint))
+        }
+        val urlInput = EditText(ctx).apply {
+            hint = "Base URL (https://api.example.com)"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+            setHintTextColor(getColor(R.color.text_hint))
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+        val categoryInput = EditText(ctx).apply {
+            hint = "Category (e.g. Finance, Weather, Custom)"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+            setHintTextColor(getColor(R.color.text_hint))
+        }
+        val descInput = EditText(ctx).apply {
+            hint = "Description (what does this API do?)"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+            setHintTextColor(getColor(R.color.text_hint))
+            minLines = 2
+        }
+
+        val container = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 24, 32, 0)
+            addView(nameInput)
+            addView(urlInput)
+            addView(categoryInput)
+            addView(descInput)
+        }
+
+        AlertDialog.Builder(ctx)
+            .setTitle("Add Custom API ❤")
+            .setMessage("Add any public API to your dashboard ❤")
+            .setView(container)
+            .setPositiveButton("Add ❤") { _, _ ->
+                val error = viewModel.addCustomApi(
+                    context = ctx,
+                    name = nameInput.text.toString(),
+                    url = urlInput.text.toString(),
+                    category = categoryInput.text.toString(),
+                    description = descInput.text.toString()
+                )
+                if (error != null) {
+                    Toast.makeText(ctx, error, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(ctx, "API added ❤ You can test it now!", Toast.LENGTH_SHORT).show()
+                    updateHiddenButton()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun toggleGptPanel() {

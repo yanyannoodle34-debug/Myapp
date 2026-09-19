@@ -1,5 +1,6 @@
 package com.example.myapplication.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -49,13 +50,97 @@ class DashboardViewModel : ViewModel() {
     private val _isSearchingGithub = MutableLiveData<Boolean>()
     val isSearchingGithub: LiveData<Boolean> = _isSearchingGithub
 
+    private var allApis: List<ApiItem> = emptyList()
+    private var showHidden = false
+
     init {
-        loadApis()
         loadGptProviders()
     }
 
-    private fun loadApis() {
-        _apis.value = ApiConstants.PUBLIC_APIS
+    /** Load built-in + custom APIs, apply hidden flags. Call from Activity with context. */
+    fun loadApis(context: Context) {
+        val hidden = PrefsManager.getHiddenIds(context.applicationContext)
+        val customs = PrefsManager.getCustomApis(context.applicationContext)
+            .map { it.copy(isCustom = true, isHidden = hidden.contains(it.id)) }
+        val builtins = ApiConstants.PUBLIC_APIS
+            .map { it.copy(isHidden = hidden.contains(it.id)) }
+        allApis = customs + builtins
+        refreshVisible()
+    }
+
+    private fun refreshVisible() {
+        _apis.value = if (showHidden) allApis else allApis.filter { !it.isHidden }
+    }
+
+    fun setShowHidden(show: Boolean) {
+        showHidden = show
+        refreshVisible()
+    }
+
+    fun isShowingHidden(): Boolean = showHidden
+
+    fun hiddenCount(): Int = allApis.count { it.isHidden }
+
+    fun totalCount(): Int = allApis.size
+
+    /** Secure: validate + persist a user-supplied API. Returns error message or null on success. */
+    fun addCustomApi(
+        context: Context,
+        name: String,
+        url: String,
+        category: String,
+        description: String
+    ): String? {
+        val n = name.trim().take(60)
+        var u = url.trim().take(500)
+        if (n.isEmpty()) return "Give your API a name ❤"
+        if (u.isEmpty()) return "Paste an API URL ❤"
+        if (!u.startsWith("http://") && !u.startsWith("https://")) {
+            u = "https://$u"
+        }
+        if (!(u.startsWith("http://") || u.startsWith("https://"))) {
+            return "URL must start with http:// or https://"
+        }
+        if (u.length < 12) return "That URL looks too short"
+        val c = category.trim().take(30).ifEmpty { "Custom" }
+        val d = description.trim().take(300).ifEmpty { "My custom API ❤" }
+        val ctx = context.applicationContext
+        val api = ApiItem(
+            id = "custom_${System.currentTimeMillis()}",
+            name = n,
+            description = d,
+            baseUrl = u,
+            category = c,
+            icon = "✨",
+            lastChecked = 0,
+            tags = listOf("custom", c.lowercase()),
+            isCustom = true,
+            isHidden = false
+        )
+        PrefsManager.addCustomApi(ctx, api)
+        PrefsManager.setHidden(ctx, api.id, false)
+        loadApis(ctx)
+        return null
+    }
+
+    /** Toggle show/hide for ANY item (built-in or custom). */
+    fun toggleVisibility(context: Context, api: ApiItem) {
+        val ctx = context.applicationContext
+        PrefsManager.setHidden(ctx, api.id, !api.isHidden)
+        allApis = allApis.map {
+            if (it.id == api.id) it.copy(isHidden = !api.isHidden) else it
+        }
+        refreshVisible()
+    }
+
+    /** Delete custom APIs. Built-ins cannot be deleted (hide them instead). Returns true if deleted. */
+    fun deleteApi(context: Context, api: ApiItem): Boolean {
+        if (!api.isCustom) return false
+        val ctx = context.applicationContext
+        val ok = PrefsManager.removeCustomApi(ctx, api.id)
+        PrefsManager.setHidden(ctx, api.id, false)
+        loadApis(ctx)
+        return ok
     }
 
     private fun loadGptProviders() {
@@ -106,16 +191,14 @@ class DashboardViewModel : ViewModel() {
     }
 
     private fun updateApiStatus(api: ApiItem, isLive: Boolean, responseTime: Long) {
-        val currentList = _apis.value?.toMutableList() ?: return
-        val index = currentList.indexOfFirst { it.id == api.id }
-        if (index != -1) {
-            currentList[index] = currentList[index].copy(
+        allApis = allApis.map {
+            if (it.id == api.id) it.copy(
                 isLive = isLive,
                 responseTime = responseTime,
                 lastChecked = System.currentTimeMillis()
-            )
-            _apis.value = currentList
+            ) else it
         }
+        refreshVisible()
     }
 
     fun selectGptProvider(provider: GptProvider) {

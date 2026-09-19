@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.models.ApiItem
+import com.google.android.material.button.MaterialButton
 
 class ApiAdapter(
     private val onTestClick: (ApiItem) -> Unit,
-    private val onItemClick: (ApiItem) -> Unit
+    private val onItemClick: (ApiItem) -> Unit,
+    private val onToggleVisibility: (ApiItem) -> Unit,
+    private val onDeleteClick: (ApiItem) -> Unit
 ) : ListAdapter<ApiItem, ApiAdapter.ApiViewHolder>(ApiDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApiViewHolder {
@@ -36,13 +39,27 @@ class ApiAdapter(
         private val tvResponseTime: TextView = itemView.findViewById(R.id.tvResponseTime)
         private val btnTest: ImageButton = itemView.findViewById(R.id.btnTest)
         private val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
+        private val btnToggle: MaterialButton = itemView.findViewById(R.id.btnToggleVisibility)
+        private val btnDelete: MaterialButton = itemView.findViewById(R.id.btnDelete)
+        private val tvCustomBadge: TextView = itemView.findViewById(R.id.tvCustomBadge)
 
         fun bind(api: ApiItem) {
             tvIcon.text = api.icon
             tvName.text = api.name
             tvDescription.text = api.description
             tvCategory.text = api.category
-            
+
+            // Friendly dim for hidden items shown via "show hidden" mode
+            itemView.alpha = if (api.isHidden) 0.55f else 1.0f
+
+            btnToggle.text = if (api.isHidden) "👁 Show" else "👁 Hide"
+            btnToggle.contentDescription = if (api.isHidden) "Show ${api.name}" else "Hide ${api.name}"
+
+            // Delete only for custom APIs (built-ins use Hide instead – user-friendly, no data loss)
+            btnDelete.visibility = if (api.isCustom) View.VISIBLE else View.GONE
+            btnDelete.contentDescription = "Delete ${api.name}"
+            tvCustomBadge.visibility = if (api.isCustom) View.VISIBLE else View.GONE
+
             when {
                 api.isLive -> {
                     tvStatus.text = "● LIVE"
@@ -72,6 +89,9 @@ class ApiAdapter(
                 tvStatus.setTextColor(itemView.context.getColor(R.color.status_testing))
                 onTestClick(api)
             }
+
+            btnToggle.setOnClickListener { onToggleVisibility(api) }
+            btnDelete.setOnClickListener { onDeleteClick(api) }
 
             itemView.setOnClickListener {
                 onItemClick(api)

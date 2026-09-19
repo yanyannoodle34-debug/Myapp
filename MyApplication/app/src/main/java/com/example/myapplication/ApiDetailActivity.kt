@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.models.ApiItem
+import com.example.myapplication.utils.PrefsManager
 import com.example.myapplication.viewmodels.DashboardViewModel
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -99,12 +100,14 @@ class ApiDetailActivity : AppCompatActivity() {
     private fun loadApiData() {
         val apiId = intent.getStringExtra("api_id")
         apiId?.let { id ->
+            // Search built-in first, then custom APIs (so detail works for both)
             apiItem = com.example.myapplication.utils.ApiConstants.PUBLIC_APIS.find { it.id == id }
+                ?: PrefsManager.getCustomApis(this).find { it.id == id }
             apiItem?.let { api ->
                 tvApiName.text = "${api.icon} ${api.name}"
                 tvApiDescription.text = api.description
                 tvApiUrl.text = api.baseUrl
-                tvApiCategory.text = api.category
+                tvApiCategory.text = if (api.isCustom) "✨ ${api.category}" else api.category
             }
         }
     }

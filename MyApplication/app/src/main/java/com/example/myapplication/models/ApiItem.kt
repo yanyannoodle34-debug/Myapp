@@ -12,5 +12,7 @@ data class ApiItem(
     val lastChecked: Long = System.currentTimeMillis(),
     val githubRepo: String = "",
     val documentation: String = "",
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val isCustom: Boolean = false,
+    val isHidden: Boolean = false
 )
