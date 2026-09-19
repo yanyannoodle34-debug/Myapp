@@ -23,24 +23,24 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <!-- Splash Ad (5s on app start) -->
+        <!-- Splash Ad (kept for refresh path, NOT launcher) -->
         <activity
             android:name=".ads.AdActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="Loading"
+            android:theme="@style/Theme.App" />
+
+        <!-- Main Dashboard (launcher - no startup ad) -->
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="true"
+            android:label="AI for APIs"
             android:theme="@style/Theme.App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Main Dashboard -->
-        <activity
-            android:name=".DashboardActivity"
-            android:exported="false"
-            android:label="AI for APIs"
-            android:theme="@style/Theme.App" />
 
         <!-- Periodic Ad -->
         <activity

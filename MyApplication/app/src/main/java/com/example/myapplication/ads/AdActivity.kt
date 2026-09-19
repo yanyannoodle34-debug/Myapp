@@ -110,8 +110,16 @@ class AdActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url?.toString() ?: return true
+                // Same friendly redirect as PeriodicAd: open taps in browser
                 if (url.startsWith("http://") || url.startsWith("https://")) {
-                    return false
+                    try {
+                        val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(i)
+                    } catch (e: Exception) {
+                        tvStatus.text = "Can't open link – tap Browser ❤"
+                    }
+                    return true
                 }
                 return true
             }
@@ -120,7 +128,7 @@ class AdActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 adLoaded = true
                 progressBar.visibility = View.GONE
-                tvStatus.text = "Ad loaded"
+                tvStatus.text = "❤ Thanks for supporting – Skip anytime"
             }
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -130,12 +138,12 @@ class AdActivity : AppCompatActivity() {
                 // then offer external browser fallback. Countdown still finishes.
                 if (retryCount < 1) {
                     retryCount++
-                    tvStatus.text = "Retrying ad... ($retryCount)"
+                    tvStatus.text = "Retrying ❤ ($retryCount)…"
                     view?.clearCache(true)
                     view?.loadUrl(AD_URL)
                 } else {
                     progressBar.visibility = View.GONE
-                    tvStatus.text = "Ad blocked (VPN?) — try browser"
+                    tvStatus.text = "Ad blocked (VPN?) – open in Browser ❤ or Skip"
                     btnRefresh.visibility = View.VISIBLE
                     btnBrowser.visibility = View.VISIBLE
                 }

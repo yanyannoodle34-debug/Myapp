@@ -22,7 +22,7 @@ class PeriodicAdActivity : AppCompatActivity() {
 
     companion object {
         const val AD_URL = "https://www.profitableratecpmnetwork.com/eyjjtp4aj?key=68ea55cc29c5c85c681c4ac949fb45e0"
-        const val AD_DURATION = 5000L // 5 seconds
+        const val AD_DURATION = 30 * 1000L // 30s auto-close, skip anytime (user-friendly)
     }
 
     private lateinit var webView: WebView
@@ -62,17 +62,24 @@ class PeriodicAdActivity : AppCompatActivity() {
         btnRefresh.setOnClickListener {
             retryCount = 0
             btnRefresh.visibility = View.GONE
-            btnBrowser.visibility = View.GONE
-            tvStatus.text = "Loading ad..."
+            btnBrowser.visibility = View.VISIBLE
+            tvStatus.text = "❤ Loading – thanks for supporting free app…"
             loadAd()
         }
 
         btnBrowser.setOnClickListener {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AD_URL)))
-            } catch (e: Exception) {
-                tvStatus.text = "No browser found"
-            }
+            openInBrowser()
+        }
+    }
+
+    private fun openInBrowser() {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(AD_URL))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            tvStatus.text = "❤ Opened in browser – back anytime, Skip is free"
+        } catch (e: Exception) {
+            tvStatus.text = "No browser found – tap Skip ❤"
         }
     }
 
@@ -89,13 +96,26 @@ class PeriodicAdActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url?.toString() ?: return true
-                return !(url.startsWith("http://") || url.startsWith("https://"))
+                // Secure + user-friendly: open ad taps in external browser (redirect),
+                // never trap user inside WebView. Only allow http/https.
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    try {
+                        val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(i)
+                        tvStatus.text = "❤ Opened link in browser – back anytime"
+                    } catch (e: Exception) {
+                        tvStatus.text = "Can't open link – tap Browser ❤"
+                    }
+                    return true
+                }
+                return true
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 progressBar.visibility = View.GONE
-                tvStatus.text = "Ad loaded"
+                tvStatus.text = "❤ Thanks for supporting – Skip anytime"
             }
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -104,12 +124,12 @@ class PeriodicAdActivity : AppCompatActivity() {
                 // VPN/DNS may block the ad host: retry once, then browser fallback
                 if (retryCount < 1) {
                     retryCount++
-                    tvStatus.text = "Retrying ad... ($retryCount)"
+                    tvStatus.text = "Retrying ❤ ($retryCount)…"
                     view?.clearCache(true)
                     view?.loadUrl(AD_URL)
                 } else {
                     progressBar.visibility = View.GONE
-                    tvStatus.text = "Ad blocked (VPN?) — try browser"
+                    tvStatus.text = "Ad blocked (VPN?) – open in Browser ❤ or Skip"
                     btnRefresh.visibility = View.VISIBLE
                     btnBrowser.visibility = View.VISIBLE
                 }
@@ -131,10 +151,11 @@ class PeriodicAdActivity : AppCompatActivity() {
         countDownTimer = object : CountDownTimer(AD_DURATION, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = millisUntilFinished / 1000
-                tvCountdown.text = "Skip in ${secondsLeft}s"
+                tvCountdown.text = "Auto-close ${secondsLeft}s – Skip free ❤"
             }
 
             override fun onFinish() {
+                tvCountdown.text = "Thanks ❤"
                 finishAd()
             }
         }.start()

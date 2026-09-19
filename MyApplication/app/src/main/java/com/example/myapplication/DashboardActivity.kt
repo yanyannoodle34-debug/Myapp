@@ -41,7 +41,7 @@ import com.google.android.material.textfield.TextInputLayout
 class DashboardActivity : AppCompatActivity() {
 
     companion object {
-        const val AD_INTERVAL = 5 * 60 * 1000L // 5 minutes in milliseconds
+        const val AD_INTERVAL = 30 * 1000L // 30s friendly periodic ad
     }
 
     private lateinit var viewModel: DashboardViewModel
@@ -338,8 +338,11 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun checkAllApis() {
-        // Show ad first — checks run automatically when the ad closes
+        // User-friendly: run checks immediately so dashboard stays useful,
+        // show 30s skippable ad in separate task (never blocks dashboard)
+        runChecksNow()
         showPeriodicAd()
+        Toast.makeText(this, "Checking APIs ❤ Ad keeps app free – skip anytime", Toast.LENGTH_SHORT).show()
     }
 
     private fun runChecksNow() {
