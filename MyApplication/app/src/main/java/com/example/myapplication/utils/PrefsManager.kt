@@ -91,4 +91,27 @@ object PrefsManager {
         if (hidden) set.add(apiId) else set.remove(apiId)
         prefs(context).edit { putStringSet(KEY_HIDDEN_IDS, set) }
     }
+
+    fun getCategoryIcon(category: String): String = when (category) {
+        "Testing" -> "📋"
+        "Entertainment" -> "🎮"
+        "Weather" -> "🌤️"
+        "Data" -> "📊"
+        "Animals" -> "🐾"
+        "Fun" -> "🎉"
+        "Food" -> "🍕"
+        "Social" -> "👥"
+        "Finance" -> "💰"
+        "Health" -> "🏥"
+        "Developer" -> "💻"
+        "Storage" -> "💾"
+        "E-commerce" -> "🛒"
+        "Location" -> "📍"
+        "Education" -> "📚"
+        "Science" -> "🔬"
+        "Gaming" -> "🕹️"
+        "Disasters" -> "🌋"
+        "Custom" -> "✨"
+        else -> "📡"
+    }
 }

@@ -5,15 +5,20 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.models.ApiItem
 import com.example.myapplication.utils.PrefsManager
 import com.example.myapplication.viewmodels.DashboardViewModel
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
@@ -29,6 +34,7 @@ class ApiDetailActivity : AppCompatActivity() {
     private lateinit var tvResponse: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var btnTest: Button
+    private lateinit var btnEdit: MaterialButton
 
     private var apiItem: ApiItem? = null
 
@@ -53,12 +59,19 @@ class ApiDetailActivity : AppCompatActivity() {
         tvResponse = findViewById(R.id.tvResponse)
         progressBar = findViewById(R.id.progressBar)
         btnTest = findViewById(R.id.btnTest)
+        btnEdit = findViewById(R.id.btnEdit)
 
         btnTest.setOnClickListener {
             apiItem?.let { api ->
                 viewModel.testApi(api)
                 progressBar.visibility = android.view.View.VISIBLE
                 tvStatus.text = "Testing..."
+            }
+        }
+
+        btnEdit.setOnClickListener {
+            apiItem?.let { api ->
+                if (api.isCustom) showEditDialog(api)
             }
         }
 
@@ -69,6 +82,80 @@ class ApiDetailActivity : AppCompatActivity() {
         findViewById<com.google.android.material.button.MaterialButton>(R.id.btnShare).setOnClickListener {
             shareResponse()
         }
+    }
+
+    private fun showEditDialog(api: ApiItem) {
+        val nameInput = EditText(this).apply {
+            setText(api.name)
+            hint = "API Name"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+        }
+        val urlInput = EditText(this).apply {
+            setText(api.baseUrl)
+            hint = "Base URL"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+        val catInput = EditText(this).apply {
+            setText(api.category)
+            hint = "Category"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+        }
+        val descInput = EditText(this).apply {
+            setText(api.description)
+            hint = "Description"
+            setPadding(48, 32, 48, 8)
+            setTextColor(getColor(R.color.text_primary))
+            minLines = 2
+        }
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 24, 32, 0)
+            addView(nameInput)
+            addView(urlInput)
+            addView(catInput)
+            addView(descInput)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Edit Custom API")
+            .setView(container)
+            .setPositiveButton("Save") { _, _ ->
+                val name = nameInput.text.toString().trim().take(60)
+                var url = urlInput.text.toString().trim().take(500)
+                if (url.isNotEmpty() && !url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "https://$url"
+                }
+                val cat = catInput.text.toString().trim().take(30).ifEmpty { "Custom" }
+                val desc = descInput.text.toString().trim().take(300).ifEmpty { "My custom API" }
+
+                if (name.isEmpty()) {
+                    Toast.makeText(this, "Name required", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (url.isEmpty() || url.length < 12) {
+                    Toast.makeText(this, "Valid URL required", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val updated = api.copy(
+                    name = name,
+                    baseUrl = url,
+                    category = cat,
+                    description = desc,
+                    tags = listOf("custom", cat.lowercase())
+                )
+                PrefsManager.addCustomApi(this, updated)
+                apiItem = updated
+                loadApiData()
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun copyResponse() {
@@ -108,6 +195,7 @@ class ApiDetailActivity : AppCompatActivity() {
                 tvApiDescription.text = api.description
                 tvApiUrl.text = api.baseUrl
                 tvApiCategory.text = if (api.isCustom) "✨ ${api.category}" else api.category
+                btnEdit.visibility = if (api.isCustom) View.VISIBLE else View.GONE
             }
         }
     }

@@ -63,6 +63,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var tvDownCount: TextView
     private lateinit var tvTotalCount: TextView
     private lateinit var btnStopCheck: MaterialButton
+    private lateinit var layoutCategoryChips: LinearLayout
 
     private var isGptPanelVisible = false
     private var checkingAll = false
@@ -122,7 +123,9 @@ class DashboardActivity : AppCompatActivity() {
         progressBarLoading = findViewById(R.id.progressBarLoading)
         btnAddApi = findViewById(R.id.btnAddApi)
         btnShowHidden = findViewById(R.id.btnShowHidden)
+        layoutCategoryChips = findViewById(R.id.layoutCategoryChips)
         viewModel.loadApis(this)
+        setupCategoryChips()
     }
 
     private fun setupRecyclerView() {
@@ -207,6 +210,29 @@ class DashboardActivity : AppCompatActivity() {
                 if (show) "Showing hidden ❤" else "Hidden APIs are safe ❤",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    private fun setupCategoryChips() {
+        layoutCategoryChips.removeAllViews()
+        val allApis = viewModel.getAllApis()
+        val categories = allApis.map { it.category }.distinct().sorted()
+        val iconMap = com.example.myapplication.utils.ApiConstants.CATEGORY_ICONS
+
+        categories.forEach { category ->
+            val count = allApis.count { it.category == category }
+            val icon = iconMap[category] ?: "📡"
+            val chip = Chip(this).apply {
+                text = "$icon $category ($count)"
+                isCheckable = false
+                isClickable = true
+                setTextColor(getColor(R.color.text_primary))
+                chipBackgroundColor = android.content.res.ColorStateList.valueOf(getColor(R.color.card_elevated))
+                setOnClickListener {
+                    CategoryDetailActivity.start(this@DashboardActivity, category)
+                }
+            }
+            layoutCategoryChips.addView(chip)
         }
     }
 

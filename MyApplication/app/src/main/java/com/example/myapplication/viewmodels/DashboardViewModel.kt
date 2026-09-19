@@ -68,6 +68,8 @@ class DashboardViewModel : ViewModel() {
         refreshVisible()
     }
 
+    fun getAllApis(): List<ApiItem> = allApis
+
     private fun refreshVisible() {
         _apis.value = if (showHidden) allApis else allApis.filter { !it.isHidden }
     }

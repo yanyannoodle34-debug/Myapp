@@ -135,11 +135,24 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTest"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginTop="16dp"
                 android:text="Test API Now"
                 app:icon="@drawable/ic_play" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                android:text="Edit"
+                android:textAllCaps="false"
+                android:visibility="gone" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

@@ -505,6 +505,15 @@ object ApiConstants {
         "Food" to "🍕",
         "Social" to "👥",
         "Finance" to "💰",
-        "Health" to "🏥"
+        "Health" to "🏥",
+        "Developer" to "💻",
+        "Storage" to "💾",
+        "E-commerce" to "🛒",
+        "Location" to "📍",
+        "Education" to "📚",
+        "Science" to "🔬",
+        "Gaming" to "🕹️",
+        "Disasters" to "🌋",
+        "Custom" to "✨"
     )
 }

@@ -243,6 +243,21 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
+    <!-- Category Chips (tap to open sub-dashboard) -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="12dp"
+        android:paddingBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/layoutCategoryChips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
     <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
