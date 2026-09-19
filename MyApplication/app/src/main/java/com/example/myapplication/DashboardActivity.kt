@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 
@@ -64,6 +65,9 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var tvTotalCount: TextView
     private lateinit var btnStopCheck: MaterialButton
     private lateinit var layoutCategoryChips: LinearLayout
+    private lateinit var btnTestKey: MaterialButton
+    private lateinit var tvEstimatedTime: TextView
+    private lateinit var tvLiveMessages: TextView
 
     private var isGptPanelVisible = false
     private var checkingAll = false
@@ -124,6 +128,9 @@ class DashboardActivity : AppCompatActivity() {
         btnAddApi = findViewById(R.id.btnAddApi)
         btnShowHidden = findViewById(R.id.btnShowHidden)
         layoutCategoryChips = findViewById(R.id.layoutCategoryChips)
+        btnTestKey = findViewById(R.id.btnTestKey)
+        tvEstimatedTime = findViewById(R.id.tvEstimatedTime)
+        tvLiveMessages = findViewById(R.id.tvLiveMessages)
         viewModel.loadApis(this)
         setupCategoryChips()
     }
@@ -182,6 +189,10 @@ class DashboardActivity : AppCompatActivity() {
 
         btnRunGpt.setOnClickListener {
             runGptTest()
+        }
+
+        btnTestKey.setOnClickListener {
+            testApiKey()
         }
 
         findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCloseGpt).setOnClickListener {
@@ -334,6 +345,19 @@ class DashboardActivity : AppCompatActivity() {
 
         viewModel.gptResponse.observe(this) { response ->
             tvGptResponse.text = response
+        }
+
+        viewModel.gptLiveMessages.observe(this) { message ->
+            appendLiveMessage(message)
+        }
+
+        viewModel.estimatedTime.observe(this) { time ->
+            tvEstimatedTime.text = time
+        }
+
+        viewModel.isTestKeyLoading.observe(this) { loading ->
+            btnTestKey.isEnabled = !loading
+            btnRunGpt.isEnabled = !loading
         }
 
         viewModel.githubRepos.observe(this) { repos ->
@@ -557,7 +581,40 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
+        tvLiveMessages.text = ""
         viewModel.sendGptRequest(prompt, apiKey)
+    }
+
+    private fun testApiKey() {
+        val apiKey = etApiKey.text.toString()
+        val provider = viewModel.selectedProvider.value
+
+        if (provider == null) {
+            Toast.makeText(this, "Select a GPT provider first", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (provider.apiKeyRequired && apiKey.isBlank()) {
+            Toast.makeText(this, "Enter API key for ${provider.name}", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        tvEstimatedTime.text = "⏱ Est. 2-5s..."
+        tvLiveMessages.text = "🔑 Validating key against ${provider.name}..."
+        viewModel.testApiKey(provider, apiKey)
+    }
+
+    private fun appendLiveMessage(message: String) {
+        val current = tvLiveMessages.text.toString()
+        val newText = if (current == "Waiting for key test..." || current.isEmpty()) {
+            message
+        } else {
+            "$current\n$message"
+        }
+        tvLiveMessages.text = newText
+        // Scroll to bottom
+        val scrollView = tvLiveMessages.parent?.parent as? ScrollView
+        scrollView?.post { scrollView.fullScroll(View.FOCUS_DOWN) }
     }
 
     private fun showApiDetails(api: ApiItem) {

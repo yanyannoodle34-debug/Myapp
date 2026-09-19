@@ -10,6 +10,7 @@ import com.example.myapplication.models.ApiResponse
 import com.example.myapplication.models.GithubRate
 import com.example.myapplication.models.GithubRepo
 import com.example.myapplication.models.GptProvider
+import com.example.myapplication.services.ApiService
 import com.example.myapplication.services.GithubClient
 import com.example.myapplication.services.RetrofitClient
 import com.example.myapplication.utils.ApiConstants
@@ -40,6 +41,15 @@ class DashboardViewModel : ViewModel() {
 
     private val _gptResponse = MutableLiveData<String>()
     val gptResponse: LiveData<String> = _gptResponse
+
+    private val _gptLiveMessages = MutableLiveData<String>()
+    val gptLiveMessages: LiveData<String> = _gptLiveMessages
+
+    private val _estimatedTime = MutableLiveData<String>()
+    val estimatedTime: LiveData<String> = _estimatedTime
+
+    private val _isTestKeyLoading = MutableLiveData<Boolean>()
+    val isTestKeyLoading: LiveData<Boolean> = _isTestKeyLoading
 
     private val _githubRepos = MutableLiveData<List<GithubRepo>>()
     val githubRepos: LiveData<List<GithubRepo>> = _githubRepos
@@ -285,6 +295,55 @@ class DashboardViewModel : ViewModel() {
                 _githubRepos.value = emptyList()
             }
             _isSearchingGithub.value = false
+        }
+    }
+
+    fun testApiKey(provider: GptProvider, apiKey: String) {
+        _isTestKeyLoading.value = true
+        _estimatedTime.value = "⏱ Est. 2-5s..."
+        _gptLiveMessages.value = "🔑 Validating key against ${provider.name}..."
+        viewModelScope.launch {
+            try {
+                val auth = "Bearer $apiKey"
+                val request = com.example.myapplication.models.GptRequest(
+                    model = provider.model,
+                    messages = listOf(
+                        com.example.myapplication.models.GptMessage(
+                            role = "user",
+                            content = "Say hello"
+                        )
+                    ),
+                    maxTokens = 5
+                )
+                _gptLiveMessages.postValue("📡 Sending request to ${provider.baseUrl}...")
+                val startTime = System.currentTimeMillis()
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.createRetrofit(provider.baseUrl).create(ApiService::class.java)
+                        .sendGptRequest(
+                            url = "${provider.baseUrl}/chat/completions",
+                            auth = auth,
+                            request = request
+                        )
+                }
+                val elapsed = System.currentTimeMillis() - startTime
+
+                if (response.isSuccessful) {
+                    val gptResponse = response.body()
+                    val content = gptResponse?.choices?.firstOrNull()?.message?.content
+                    _estimatedTime.value = "✅ Key valid! Response in ${elapsed}ms"
+                    _gptLiveMessages.postValue("✅ API key verified successfully! (${elapsed}ms)")
+                    _gptLiveMessages.postValue("💬 Model: ${provider.model}")
+                    _gptLiveMessages.postValue("💬 Response: ${content?.take(100) ?: "OK"}")
+                } else {
+                    _estimatedTime.value = "❌ Key invalid! HTTP ${response.code()}"
+                    _gptLiveMessages.postValue("❌ Key rejected: HTTP ${response.code()}")
+                    _gptLiveMessages.postValue("💡 Check your API key in Settings")
+                }
+            } catch (e: Exception) {
+                _estimatedTime.value = "❌ Error: ${e.message}"
+                _gptLiveMessages.postValue("❌ Connection failed: ${e.message}")
+            }
+            _isTestKeyLoading.value = false
         }
     }
 

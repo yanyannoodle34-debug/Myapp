@@ -487,6 +487,75 @@
             app:icon="@drawable/ic_play"
             app:cornerRadius="12dp" />
 
+        <!-- Test Key Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTestKey"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="6dp"
+            android:text="🔑 Test API Key"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_key"
+            app:cornerRadius="12dp" />
+
+        <!-- Estimated Time -->
+        <TextView
+            android:id="@+id/tvEstimatedTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="4dp"
+            android:text=""
+            android:textColor="@color/text_hint"
+            android:textSize="11sp"
+            android:textAllCaps="false"
+            android:fontFamily="monospace" />
+
+        <!-- Live Messages -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="@color/card_elevated">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🔴 Live Messages"
+                    android:textColor="@color/status_live"
+                    android:textSize="11sp"
+                    android:textAllCaps="true" />
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginTop="6dp">
+
+                    <TextView
+                        android:id="@+id/tvLiveMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Waiting for key test..."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:textIsSelectable="true" />
+                </ScrollView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Response Area -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
