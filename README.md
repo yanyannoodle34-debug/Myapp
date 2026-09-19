@@ -4,7 +4,7 @@
 
 | Version | Code | Date | Highlights |
 |---------|------|------|------------|
-| 1.4.1 | 8 | 2026-09-19 | Sub-dashboard per category, category chips, editable custom APIs |
+| 1.4.1 | 8 | 2026-09-19 | AI API key test button, estimated time, live messages, category chips, editable custom APIs |
 | 1.4.0 | 7 | 2026-09-19 | Custom APIs + per-item Hide/Show/Delete + Show Hidden toggle |
 | 1.3.5 | 6 | 2026-09-19 | No startup ad, 30s friendly refresh ads, browser redirect, instant checks |
 | 1.3.4 | 5 | 2026-09-17 | Modern eyecatching colors, fixed white-on-white, dark theme |
@@ -16,6 +16,7 @@
 **⬇ Download latest APK:** https://github.com/yanyannoodle34-debug/Myapp/releases/latest
 
 ## Features
+- 🔑 AI API key test button with estimated time & live messages
 - 🌋 35 Public APIs (USGS earthquakes, NASA EONET, NOAA alerts + 31 more)
 - 🎨 Lottie loading animations & animated gradient backgrounds
 - 🌙 Dark theme with polished navy+cyan color palette
@@ -27,6 +28,8 @@
 - 📝 Copy/Share API responses
 - ⚙️ Settings with per-provider API keys
 - 🔄 Auto APK backup + GitHub release publishing
+- 📂 Category sub-dashboards with chips
+- ✏️ Editable custom APIs with detail screen
 
 ## Quick Reference
 
